@@ -40,3 +40,10 @@ export async function getUserLibraryData(userId: string) {
     userBookmarks,
   };
 }
+
+export async function getChapterById(chapterId: number) {
+  const chapter = await db.query.chapters.findFirst({
+    where: eq(chapters.id, chapterId),
+  });
+  return chapter;
+}
