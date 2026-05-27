@@ -6,15 +6,15 @@ import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
 export default async function TocPage({
   params
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ novelId: string }>
 }) {
-  const { slug } = await params;
+  const { novelId } = await params;
   const { data: session } = await auth.getSession();
   // TODO: how to handle this properly?
   if (session === null) {
     return <></>;
   }
-  const novelId = Number(slug);
+  const novelId = Number(novelId);
   const novelInfo = await getNovelInfo(session.user.id, novelId);
   // TODO: handle
   if (novelInfo === null) {
