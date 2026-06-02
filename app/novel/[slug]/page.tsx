@@ -35,8 +35,7 @@ export default async function TocPage({
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-white font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col py-32 px-16 bg-white dark:bg-black">
-        <div className="mb-2"> {/* TODO: should this be a <section>? and what about a container <div> or <section> for the chapter list? (the only point of the <div> is to allow for the margin) */}
-        <h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50 mb-10">
+        <h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
           {novelInfo.title}
         </h1>
         <p>
@@ -53,14 +52,13 @@ export default async function TocPage({
           {/* TODO: what to do if there's no synopsis? */}
           <em>{novelInfo.synopsis}</em>
         </p>
-        </div>
-        <h2 className="text-2xl font-semibold">Bookmarks</h2>
+        <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
         <ul>
           {/* TODO */}
           <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> {/* TODO: how to visually distinguish the chapter # part from the bookmark name? */}
         </ul>
         {/* TODO: gap before the "Chapters" section */}
-        <h2 className="text-2xl font-semibold">Chapters</h2>
+        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
         <ul>
           {contents.map(chapter =>
             // TODO: use sort_order
