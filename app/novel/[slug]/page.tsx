@@ -1,26 +1,6 @@
 import Link from 'next/link';
 
-import { eq } from 'drizzle-orm';
-
-import { db } from '@/app/lib/db/index';
-import { novels, chapters } from '@/app/lib/db/schema';
-
-async function getNovelInfo(novelId: number) {
-  const novelInfo = await db
-    .select()
-    .from(novels)
-    .where(eq(novels.id, novelId));
-  return novelInfo;
-}
-
-async function getTableOfContents(novelId: number) {
-  const contents = await db
-    .select()
-    .from(chapters)
-    .where(eq(chapters.novelId, novelId));
-  // TODO: assert that length is exactly 1
-  return contents;
-}
+import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
 
 export default async function TocPage({
   params
@@ -29,7 +9,7 @@ export default async function TocPage({
 }) {
   const { slug } = await params;
   const novelId = Number(slug);
-  const novelInfo = (await getNovelInfo(novelId))[0]; // TODO: snake case or camel case?; // TODO: assert exactly one element
+  const novelInfo = (await getNovelInfo(novelId))[0]; // TODO: assert exactly one element
   const contents = await getTableOfContents(novelId);
 
   return (

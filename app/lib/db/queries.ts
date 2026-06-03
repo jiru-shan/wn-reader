@@ -41,6 +41,30 @@ export async function getUserLibraryData(userId: string) {
   };
 }
 
+export async function getCollection() {
+  const collection = await db
+    .select()
+    .from(novels);
+  return collection;
+}
+
+export async function getNovelInfo(novelId: number) {
+  const novelInfo = await db
+    .select()
+    .from(novels)
+    .where(eq(novels.id, novelId));
+  return novelInfo;
+}
+
+export async function getTableOfContents(novelId: number) {
+  const contents = await db
+    .select()
+    .from(chapters)
+    .where(eq(chapters.novelId, novelId));
+  // TODO: assert that length is exactly 1
+  return contents;
+}
+
 export async function getChapterById(chapterId: number) {
   const chapter = await db.query.chapters.findFirst({
     where: eq(chapters.id, chapterId),
