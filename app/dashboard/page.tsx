@@ -1,13 +1,5 @@
-import { db } from '@/app/lib/db/index';
-import { novels } from '@/app/lib/db/schema';
+import { getCollection } from '@/app/lib/db/queries';
 import Collection from '@/app/dashboard/collection';
-
-async function getCollection() {
-  const collection = await db
-    .select()
-    .from(novels);
-  return collection;
-}
 
 export default async function DashboardPage() {
   const collection = await getCollection();
