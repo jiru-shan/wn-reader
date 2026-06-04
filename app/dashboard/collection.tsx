@@ -10,7 +10,7 @@ function SearchBar({ setQuery }) {
 
   return (
     <form className="mb-2">
-      <label htmlFor="search-collection">Search your collection:</label>
+      <label htmlFor="search-collection">Search novels:</label>
       &nbsp;
       <input type="search" id="search-collection" className="border" onChange={handleSearchBarChange} />
     </form>
@@ -36,10 +36,10 @@ function Card(novel: {
   synopsis: string | null
 }) {
   return (
-    <li className="outline-2 p-2 rounded-xl" key={novel.id}>
-      <h2 className="text-2xl font-semibold"><Link href={`/novel/${novel.id}`}>{novel.title}</Link></h2>
-        {novel.author ? <p>by {novel.author}</p> : null}
-        <p>{novel.synopsis}</p>
+    <li className="h-64 sm:h-48 outline-2 p-2 rounded-xl overflow-hidden" key={novel.id}>
+      <h2 className="line-clamp-3 sm:line-clamp-2 text-2xl font-semibold"><Link href={`/novel/${novel.id}`}>{novel.title}</Link></h2>
+        {novel.author ? <p className="line-clamp-1"><em>by {novel.author}</em></p> : null}
+        <p className="line-clamp-8 sm:line-clamp-5">{novel.synopsis}</p>
     </li>
   );
 }
@@ -50,7 +50,7 @@ export default function Collection({ collection }) {
   return (
     <>
       <SearchBar setQuery={setQuery} />
-      <ul className="grid grid-cols-1 justify-between justify-items-stretch items-stretch gap-4 w-full">
+      <ul className="flex flex-col gap-4">
         {
           collection
             .filter(novel => matches(novel, query))
