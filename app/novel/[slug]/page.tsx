@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { auth } from '@/app/lib/auth/server';
 import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
 
 export default async function TocPage({
@@ -8,8 +9,16 @@ export default async function TocPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params;
+  const { data: session } = await auth.getSession();
+  // TODO: how to handle this properly?
+  if (session === null) {
+    return <></>;
+  }
   const novelId = Number(slug);
-  const novelInfo = (await getNovelInfo(novelId))[0]; // TODO: assert exactly one element
+  const novelInfo = await getNovelInfo(session.user.id, novelId);
+  if (novelInfo === null) {
+    return <></>;
+  }
   const contents = await getTableOfContents(novelId);
 
   return (

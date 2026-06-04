@@ -38,8 +38,8 @@ function Card(novel: {
   return (
     <li className="h-64 sm:h-48 outline-2 p-2 rounded-xl overflow-hidden" key={novel.id}>
       <h2 className="line-clamp-3 sm:line-clamp-2 text-2xl font-semibold"><Link href={`/novel/${novel.id}`}>{novel.title}</Link></h2>
-        {novel.author ? <p className="line-clamp-1"><em>by {novel.author}</em></p> : null}
-        <p className="line-clamp-8 sm:line-clamp-5">{novel.synopsis}</p>
+      {novel.author ? <p className="line-clamp-1"><em>by {novel.author}</em></p> : null}
+      <p className="line-clamp-8 sm:line-clamp-5">{novel.synopsis}</p>
     </li>
   );
 }
