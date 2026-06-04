@@ -4,6 +4,9 @@
 import { useState } from 'react';
 import { importNovelFromJSON, JSONImportNovel } from './actions';
 
+//json importer component (tested on page.tsx)
+//temporarily a drop file solution instead of using the extension
+
 interface ImporterProps {
   userId: string;
 }
@@ -11,26 +14,7 @@ interface ImporterProps {
 export default function JSONImporter({ userId }: ImporterProps) {
   const [isUploading, setIsUploading] = useState(false);
 
-  // Scenario A: Simulating pulling files from a remote API
-  const handleFetchFromExternalAPI = async () => {
-    setIsUploading(true);
-    try {
-      // 1. Fetching raw string/stream data from external asset management endpoint
-      const response = await fetch('https://api.example.com/external-books/sample-id');
-      const externalData: JSONImportNovel = await response.json();
-
-      // 2. Pass straight into our transaction handler server action
-      await importNovelFromJSON(externalData, userId);
-      alert('External API book synced successfully!');
-    } catch (err) {
-      console.error(err);
-      alert('Failed to sync from external provider.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  // Scenario B: Handling manual file uploads via browser file reader
+  //handling and parsing data when uploaded manually
   const handleLocalFileDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -63,14 +47,6 @@ export default function JSONImporter({ userId }: ImporterProps) {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* API TRIGGER BUTTON */}
-        <button
-          onClick={handleFetchFromExternalAPI}
-          disabled={isUploading}
-          className="flex-1 bg-black text-white hover:bg-slate-800 disabled:bg-slate-300 transition text-xs font-medium py-3 px-4 rounded-xl"
-        >
-          {isUploading ? 'Syncing Ecosystem...' : 'Fetch External API Stream'}
-        </button>
 
         {/* NATIVE FILE LOADER */}
         <label className="flex-1 border-2 border-dashed border-slate-200 hover:border-slate-400 cursor-pointer rounded-xl flex items-center justify-center p-2 text-center transition">
