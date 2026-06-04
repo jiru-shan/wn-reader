@@ -47,3 +47,13 @@ export async function getChapterById(chapterId: number) {
   });
   return chapter;
 }
+
+export async function getChaptersForNovel(novelId: number) {
+  const allChapters = await db.query.chapters.findMany({
+    where: (chapters, { eq }) => eq(chapters.novelId, novelId),
+    
+    orderBy: (chapters, { asc }) => [asc(chapters.id)], 
+  });
+  
+  return allChapters;
+}
