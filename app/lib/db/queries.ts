@@ -64,6 +64,15 @@ export async function getNovelInfo(userId: string, novelId: number) {
   return (novelInfo.length === 1) ? novelInfo[0] : null;
 }
 
+export async function getBookmarks(novelId: number) {
+  const bookmarksList = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.novelId, novelId));
+    // TODO: order by how far they are therough the book
+  return bookmarksList;
+}
+
 export async function getTableOfContents(novelId: number) {
   const contents = await db
     .select()
