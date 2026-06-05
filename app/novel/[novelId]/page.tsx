@@ -101,7 +101,7 @@ export default async function TocPage({
           Author: {novelInfo.author ? novelInfo.author : <em>(none listed)</em>}
         </p>
         <p>
-          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external">{novelInfo.source}</a> : <em>(none listed)</em>}
+          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external" className="hover:underline">{novelInfo.source}</a> : <em>(none listed)</em>}
         </p>
         <p>
           <em>{novelInfo.synopsis}</em>
