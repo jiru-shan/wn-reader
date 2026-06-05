@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-<<<<<<< HEAD
 import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
 
 function ReadingProgressSection({
@@ -30,9 +29,6 @@ function ReadingProgressSection({
     </p>
   );
 }
-=======
-import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
->>>>>>> 3d51b48f3c58c4a3dae67eeb888054157d8c150a
 
 function BookmarksSection({
   novelId, bookmarks

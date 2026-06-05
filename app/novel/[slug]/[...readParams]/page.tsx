@@ -16,7 +16,7 @@ export default async function ReaderPage({
       </main>
     );
   }
-
+ 
   const chapterList = await getChaptersForNovel(currentNovelId);
 
   if (!chapterList || chapterList.length === 0) {
