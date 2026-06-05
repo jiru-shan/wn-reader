@@ -49,6 +49,7 @@ export default async function ReaderPage({
   return (
     <ReaderUI 
       chapters={chapterList} 
+      novelId={currentNovelId}
       initialIndex={initialChapterIndex} 
       initialPercentage={initialPercentage} 
     />

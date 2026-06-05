@@ -51,20 +51,11 @@ export const chapters = pgTable('chapters', {
 // ==========================================
 export const bookmarks = pgTable('bookmarks', {
   id: serial('id').primaryKey(),
-  
-  // ⚡ FIX: Change this from text() to uuid() to match Neon Auth
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
-    
-  novelId: integer('novel_id')
-    .notNull()
-    .references(() => novels.id, { onDelete: 'cascade' }),
-    
-  chapterId: integer('chapter_id')
-    .notNull()
-    .references(() => chapters.id, { onDelete: 'cascade' }),
-    
+  userId: uuid('user_id').notNull().references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
+  novelId: integer('novel_id').notNull().references(() => novels.id, { onDelete: 'cascade' }),
+  chapterId: integer('chapter_id').notNull().references(() => chapters.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),   // ← add this back
+  percentage: integer('percentage').notNull().default(0),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (table) => [
   unique('user_novel_bookmark_unique').on(table.userId, table.novelId),

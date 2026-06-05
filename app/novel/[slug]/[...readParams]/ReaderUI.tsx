@@ -9,13 +9,16 @@ interface Chapter {
 
 interface ReaderUIProps {
   chapters: Chapter[];
+  novelId: number;
   initialIndex?: number;
   initialPercentage?: number;
 }
 
-export default function ReaderUI({ chapters, initialIndex = 0, initialPercentage = 0 }: ReaderUIProps) {
+export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialPercentage = 0 }: ReaderUIProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const hasInitializedProgress = useRef(false); // Track if we've handled the initial load jump
+  const hasInitializedProgress = useRef(false); 
+
+  const [bookmarkStatus, setBookmarkStatus] = useState<"idle" | "loading" | "saved">("idle");
 
   const [fontSize, setFontSize] = useState(18);
   const [theme, setTheme] = useState<"light" | "dark" | "sepia">("dark");
@@ -56,6 +59,45 @@ export default function ReaderUI({ chapters, initialIndex = 0, initialPercentage
     if (layout === "single") return "max-w-[680px]";
     if (layout === "double") return "max-w-[1424px]"; 
     return widthStyles[widthLevel];
+  };
+const handleSaveBookmark = async () => {
+    if (bookmarkStatus === "loading") return;
+    setBookmarkStatus("loading");
+
+    const currentChapter = chapters[currentChapterIdx];
+    if (!currentChapter) return;
+
+    try {
+      // Force sanitize variables into clean mathematical integers
+      const sanitizedChapterId = Number(currentChapter.id);
+      const sanitizedNovelId = Number(novelId);
+      const sanitizedPercentage = Math.round(Number(chapterProgress || 0));
+
+      const response = await fetch("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chapterId: sanitizedChapterId,
+          novelId: sanitizedNovelId,
+          percentage: sanitizedPercentage,
+          url: window.location.pathname,
+          chapterTitle: currentChapter.title,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned status code: ${response.status}`);
+      }
+
+      setBookmarkStatus("saved");
+    } catch (error) {
+      console.error("Failed to save bookmark:", error);
+      setBookmarkStatus("idle");
+    } finally {
+      setTimeout(() => {
+        setBookmarkStatus("idle");
+      }, 2000);
+    }
   };
 
   useEffect(() => {
@@ -307,10 +349,28 @@ export default function ReaderUI({ chapters, initialIndex = 0, initialPercentage
           </div>
 
           <div className="flex items-center gap-3">
-             {/* Readout indicating percentage for user awareness */}
             <div className="text-xs font-bold tracking-widest opacity-40 mr-4 hidden sm:block">
                {chapterProgress}%
             </div>
+            
+            <button 
+              onClick={handleSaveBookmark}
+              disabled={bookmarkStatus === "loading"}
+              className={`text-[10px] font-bold tracking-widest px-3 py-1.5 rounded border transition-all duration-300 flex items-center gap-1.5 select-none mr-2 disabled:opacity-50 ${
+                bookmarkStatus === "saved" 
+                  ? "bg-green-500/10 text-green-500 border-green-500/30" 
+                  : `${inputBg} hover:opacity-80 active:scale-95`
+              }`}
+            >
+              {bookmarkStatus === "saved" ? (
+                <><span>&#10003;</span><span>SAVED</span></>
+              ) : bookmarkStatus === "loading" ? (
+                <span className="animate-pulse">SAVING...</span>
+              ) : (
+                <span>BOOKMARK</span>
+              )}
+            </button>
+
             <button onClick={() => setTheme('light')} className={`w-6 h-6 rounded-full bg-[#fbfbfb] border transition-all duration-200 hover:scale-110 ${theme === 'light' ? 'border-amber-500 ring-4 ring-amber-500/10' : 'border-stone-300'}`} />
             <button onClick={() => setTheme('sepia')} className={`w-6 h-6 rounded-full bg-[#f4ecd8] border transition-all duration-200 hover:scale-110 ${theme === 'sepia' ? 'border-amber-600 ring-4 ring-amber-600/10' : 'border-stone-400/40'}`} />
             <button onClick={() => setTheme('dark')} className={`w-6 h-6 rounded-full bg-[#121212] border transition-all duration-200 hover:scale-110 ${theme === 'dark' ? 'border-amber-400 ring-4 ring-amber-400/10' : 'border-stone-700'}`} />
