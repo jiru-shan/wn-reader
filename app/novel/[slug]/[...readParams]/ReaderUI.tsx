@@ -61,7 +61,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
     return widthStyles[widthLevel];
   };
 
-  // Your original manual save bookmark handler (Kept intact!)
+  // MANUAL SAVE HANDLER
   const handleSaveBookmark = async () => {
     if (bookmarkStatus === "loading") return;
     setBookmarkStatus("loading");
@@ -83,6 +83,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
           percentage: sanitizedPercentage,
           url: window.location.pathname,
           chapterTitle: currentChapter.title,
+          isAuto: false, // Explicitly flagged as manual
         }),
       });
 
@@ -101,9 +102,8 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
     }
   };
 
-  // --- AUTOMATIC BACKGROUND BOOKMARK ENGINE ---
+  // BACKGROUND AUTO-SAVE ENGINE
   useEffect(() => {
-    // Avoid running until settings & initial percentage scroll positions are locked in
     if (!isMounted || !hasInitializedProgress.current) return;
 
     const currentChapter = chapters[currentChapterIdx];
@@ -116,20 +116,19 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
         percentage: Math.round(Number(chapterProgress || 0)),
         url: window.location.pathname,
         chapterTitle: currentChapter.title,
+        isAuto: true, // Explicitly flagged as automatic
       });
 
       fetch("/api/bookmarks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: payload,
-        keepalive: true, // Allows the request to survive tab closing or hitting the back button
+        keepalive: true, 
       }).catch((err) => console.error("Silent auto-save failed:", err));
     };
 
-    // Debounce background auto-saves to trigger 2.5 seconds after a user stops scrolling/flipping pages
     const debounceTimer = setTimeout(autoSaveBookmark, 2500);
 
-    // Fires instantly if the user closes the tab, goes back, or minimizes the app
     const handleVisibilityOrUnload = () => {
       autoSaveBookmark();
     };
@@ -143,7 +142,6 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
       document.removeEventListener("visibilitychange", handleVisibilityOrUnload);
     };
   }, [currentChapterIdx, chapterProgress, novelId, chapters, isMounted]);
-  // --------------------------------------------
 
   useEffect(() => {
     const savedSettings = localStorage.getItem("reader_settings");
