@@ -1,7 +1,7 @@
 // src/lib/db/queries.ts
 import { db } from './index';
 import { novels, bookmarks, chapters } from './schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 
 /**
  * Fetches a user's library dashboard information using their strict UUID identifier
@@ -39,6 +39,38 @@ export async function getUserLibraryData(userId: string) {
     authoredNovels,
     userBookmarks,
   };
+}
+
+export async function getCollection(userId: string) {
+  const collection = await db
+    .select()
+    .from(novels)
+    .where(eq(novels.userId, userId))
+    .orderBy(novels.createdAt);
+  return collection;
+}
+
+export async function getNovelInfo(userId: string, novelId: number) {
+  const novelInfo = await db
+    .select()
+    .from(novels)
+    .where(
+      and(
+        eq(novels.userId, userId),
+        eq(novels.id, novelId)
+      )
+    )
+    .limit(1);
+  return (novelInfo.length === 1) ? novelInfo[0] : null;
+}
+
+export async function getTableOfContents(novelId: number) {
+  const contents = await db
+    .select()
+    .from(chapters)
+    .where(eq(chapters.novelId, novelId))
+    .orderBy(chapters.sortOrder);
+  return contents;
 }
 
 export async function getChapterById(chapterId: number) {
