@@ -56,24 +56,24 @@ function ContentsSection({
 }) {
   return (
     <>
-        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
-        <ul className="indent-8">
-          {chapters.map(chapter =>
-            <li key={chapter.id}>
-              <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
-                {chapter.title}
-              </Link>
-            </li>
-          )}
-        </ul>
-        </>
+      <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
+      <ul className="indent-8">
+        {chapters.map(chapter =>
+          <li key={chapter.id}>
+            <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
+              {chapter.title}
+            </Link>
+          </li>
+        )}
+      </ul>
+    </>
   );
 }
 
 export default async function TocPage({
   params
 }: {
-  params: Promise<{ novelId: string }>
+  params: Promise<{ slug: string }>
 }) {
   const { data: session } = await auth.getSession();
   // note: this shouldn't happen because the site should redirect to the login page if the user is logged in.
@@ -81,9 +81,9 @@ export default async function TocPage({
     notFound();
   }
 
-  const { novelId: urlNovelId } = await params;
-  const novelId = Number(urlNovelId);
-  const novelInfo = await getNovelInfo(session.user.id, urlNovelId);
+  const { slug } = await params;
+  const novelId = Number(slug);
+  const novelInfo = await getNovelInfo(session.user.id, slug);
   if (novelInfo === null) {
     notFound();
   }
