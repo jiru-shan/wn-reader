@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
+<<<<<<< HEAD
 import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
 
 function ReadingProgressSection({
@@ -29,6 +30,9 @@ function ReadingProgressSection({
     </p>
   );
 }
+=======
+import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
+>>>>>>> 3d51b48f3c58c4a3dae67eeb888054157d8c150a
 
 function BookmarksSection({
   novelId, bookmarks
@@ -58,7 +62,7 @@ function BookmarksSection({
           bookmarks.map(bkmk =>
             <li key={bkmk.bookmarks.id} className="indent-8">
               <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
-                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter&nbsp;{bkmk.chapters.sortOrder}
+                {bkmk.bookmarks.name}
               </Link>
             </li>
           )
@@ -110,7 +114,6 @@ export default async function TocPage({
     notFound();
   }
 
-  const readingProgress = await getReadingProgress(novelId);
   const bookmarks = await getBookmarks(novelId);
   const chapters = await getChapters(novelId);
 
@@ -135,7 +138,6 @@ export default async function TocPage({
         <p className="italic indent-8 mt-2">
           {novelInfo.synopsis}
         </p>
-        <ReadingProgressSection novelId={novelId} readingProgress={readingProgress} />
         <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
         <ContentsSection novelId={novelId} chapters={chapters} />
       </main>

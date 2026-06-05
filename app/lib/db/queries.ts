@@ -78,19 +78,6 @@ export async function getNovelInfo(userId: string, novelId: string) {
   return novelInfo[0];
 }
 
-export async function getReadingProgress(novelId: number) {
-  const progress = await db
-    .select()
-    .from(readingProgress)
-    .where(eq(readingProgress.novelId, novelId))
-    .innerJoin(chapters, eq(chapters.id, readingProgress.chapterId))
-    .limit(1);
-  if (progress.length !== 1) {
-    return null;
-  }
-  return progress[0];
-}
-
 export async function getBookmarks(novelId: number) {
   const bookmarksList = await db
     .select()
