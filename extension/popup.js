@@ -21,9 +21,10 @@ document.getElementById("scrape").addEventListener("click", async () => {
 
   try {
     const response = await chrome.runtime.sendMessage({
-      type: "SCRAPE_URL",
-      url,
-      options,
+        type: "SCRAPE_URL",
+        url,
+        options,
+        config: {} // empty = all fields will be null; fine for raw testing
     });
 
     if (!response.success) throw new Error(response.error);

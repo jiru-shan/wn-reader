@@ -6,7 +6,10 @@
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "background.js" },
   "externally_connectable": {
-    "matches": ["https://yourwebsite.com/*"]
+    "matches": [
+        "https://wn-reader.vercel.app/*",
+        "http://localhost:3000/*"
+    ]
   },
   "action": {
     "default_popup": "popup.html",

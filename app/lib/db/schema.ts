@@ -27,6 +27,8 @@ export const novels = pgTable('novels', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+
+
 //chapters
 export const chapters = pgTable('chapters', {
   id: serial('id').primaryKey(),
@@ -92,9 +94,13 @@ export const scrapingInfo = pgTable('scraping_info', {
   title: text('title').notNull(),              // CSS class name for title element
   synopsis: text('synopsis'),        // CSS class name for synopsis element
   author: text('author'),            // CSS class name for author element
-  chapterTitle: text('chapter_title'),    // CSS class name for chapter title element
-  chapterContent: text('chapter_content').notNull(), // CSS class name for chapter content element
+  chapterTitle: text('chapterTitle'),    // CSS class name for chapter title element
+  chapterContent: text('chapterContent').notNull(), // CSS class name for chapter content element
+  chapterLink: text('chapterLink').notNull().default("a")
 });
+
+
+
 
 
 

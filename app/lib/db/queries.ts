@@ -1,8 +1,20 @@
 // src/lib/db/queries.ts
 import { db } from './index';
-import { novels, bookmarks, chapters } from './schema';
+import { novels, bookmarks, chapters, scrapingInfo} from './schema';
 import { eq, and, asc, desc } from 'drizzle-orm';
 
+
+export async function getScrapingConfig(url: string) {
+  const hostname = new URL(url).hostname;
+
+  const config = await db
+    .select()
+    .from(scrapingInfo)
+    .where(eq(scrapingInfo.source, hostname))
+    .limit(1);
+
+  return config.length ? config[0] : null;
+}
 
 export async function getUserLibraryData(userId: string) {
   // check to see if id is valid
