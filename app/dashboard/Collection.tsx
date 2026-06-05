@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-function SearchBar({ setQuery }) {
-  function handleSearchBarChange(e) {
+function SearchBar({ setQuery }: { setQuery: (query: string) => void }) {
+  function handleSearchBarChange(e: React.ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
   }
 
@@ -12,7 +12,12 @@ function SearchBar({ setQuery }) {
     <form className="mb-2">
       <label htmlFor="search-collection">Search your novels:</label>
       &nbsp;
-      <input type="search" id="search-collection" className="outline focus:outline-2 focus:outline-sky-300" onChange={handleSearchBarChange} />
+      <input 
+        type="search" 
+        id="search-collection" 
+        className="outline focus:outline-2 focus:outline-sky-300" 
+        onChange={handleSearchBarChange} 
+      />
     </form>
   );
 }
