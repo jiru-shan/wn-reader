@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
+<<<<<<< HEAD
 import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
 
 function ReadingProgressSection({
@@ -27,8 +28,11 @@ function ReadingProgressSection({
         Continue where you left off (Chapter&nbsp;{readingProgress.chapters.sortOrder})
       </Link>
     </p>
-  ); {/* TODO: location; also the thing with sortOrder */}
+  );
 }
+=======
+import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
+>>>>>>> 3d51b48f3c58c4a3dae67eeb888054157d8c150a
 
 function BookmarksSection({
   novelId, bookmarks
@@ -50,20 +54,17 @@ function BookmarksSection({
     return <></>
   }
 
-  // TODO: "continue where you left off" button, linking to ReadingProgress
   return (
     <>
       <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
       <ul>
         {
           bookmarks.map(bkmk =>
-            // TODO: replace sortOrder with chapter number
             <li key={bkmk.bookmarks.id} className="indent-8">
               <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
-                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter&nbsp;{bkmk.chapters.sortOrder}
+                {bkmk.bookmarks.name}
               </Link>
             </li>
-            // TODO: how to visually distinguish the chapter number part from the bookmark name?
           )
         }
       </ul>
@@ -102,7 +103,6 @@ export default async function TocPage({
   params: Promise<{ slug: string }>
 }) {
   const { data: session } = await auth.getSession();
-  // note: this shouldn't happen because the site should redirect to the login page if the user is logged in.
   if (session === null) {
     notFound();
   }
@@ -114,13 +114,15 @@ export default async function TocPage({
     notFound();
   }
 
-  const readingProgress = await getReadingProgress(novelId);
   const bookmarks = await getBookmarks(novelId);
   const chapters = await getChapters(novelId);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-white font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col py-16 px-16 bg-white dark:bg-black">
+        <Link href="/dashboard" className="mb-6 text-sm hover:underline w-fit">
+          &larr; Back to Dashboard
+        </Link>
         <h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
           {novelInfo.title}
         </h1>
@@ -136,7 +138,6 @@ export default async function TocPage({
         <p className="italic indent-8 mt-2">
           {novelInfo.synopsis}
         </p>
-        <ReadingProgressSection novelId={novelId} readingProgress={readingProgress} />
         <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
         <ContentsSection novelId={novelId} chapters={chapters} />
       </main>

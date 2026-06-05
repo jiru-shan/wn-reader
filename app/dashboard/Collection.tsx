@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react';
 import Link from 'next/link';
 
 function SearchBar({ setQuery }: { setQuery: (query: string) => void }) {
@@ -63,24 +62,18 @@ export default function Collection({
     synopsis: string | null
   }[]
 }) {
-  const [query, setQuery] = useState('');
-
   if (collection.length === 0) {
     return (
-      // TODO: link to the browser extension
-      <p>Your collection is currently empty. Enter a link to the TOC of a novel of a registered site.</p>
+      <>
+        <p className="mb-4">Your collection is currently empty.</p>
+      </>
     );
   }
 
-  const filteredCollection = collection.filter(novel => matches(novel, query));
-
   return (
     <>
-      <SearchBar setQuery={setQuery} />
       <ul className="flex flex-col gap-4">
-        {
-          (filteredCollection.length > 0) ? filteredCollection.map(novel => <Card novel={novel} key={novel.id} />) : <p>None of the novels in your collection match your search query.</p>
-        }
+        {collection.map(novel => <Card novel={novel} key={novel.id} />)}
       </ul>
     </>
   );
