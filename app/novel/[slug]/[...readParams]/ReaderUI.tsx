@@ -298,13 +298,12 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-6 flex-wrap">
           <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
             
-            {/* NEW: Back to Dashboard Button */}
             <Link 
-              href="/dashboard"
+              href={`/novel/${novelId}`}
               className={`text-[11px] font-bold uppercase tracking-wider px-3 py-2 rounded-md border flex items-center gap-1.5 transition-all duration-200 active:scale-95 ${inputBg} hover:opacity-80`}
             >
               <span>&larr;</span>
-              <span>Dashboard</span>
+              <span>Table of Contents</span>
             </Link>
 
             <div className="w-px h-4 bg-current/10 hidden md:block"></div>
