@@ -2,7 +2,33 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
+import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
+
+function ReadingProgressSection({
+  novelId, readingProgress
+}: {
+  novelId: number,
+  readingProgress: {
+    reading_progress: {
+      percentage: number
+    },
+    chapters: {
+      sortOrder: number
+    }
+  } | null
+}) {
+  if (readingProgress === null) {
+    return <></>;
+  }
+
+  return (
+    <p className="text-lg font-semibold text-center mt-2">
+      <Link href={`/novel/${novelId}/${readingProgress.reading_progress.percentage}`} className="hover:underline">
+        Continue where you left off (Chapter&nbsp;{readingProgress.chapters.sortOrder})
+      </Link>
+    </p>
+  ); {/* TODO: location; also the thing with sortOrder */}
+}
 
 function BookmarksSection({
   novelId, bookmarks
@@ -34,7 +60,7 @@ function BookmarksSection({
             // TODO: replace sortOrder with chapter number
             <li key={bkmk.bookmarks.id} className="indent-8">
               <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
-                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter {bkmk.chapters.sortOrder}
+                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter&nbsp;{bkmk.chapters.sortOrder}
               </Link>
             </li>
             // TODO: how to visually distinguish the chapter number part from the bookmark name?
@@ -88,6 +114,7 @@ export default async function TocPage({
     notFound();
   }
 
+  const readingProgress = await getReadingProgress(novelId);
   const bookmarks = await getBookmarks(novelId);
   const chapters = await getChapters(novelId);
 
@@ -109,6 +136,7 @@ export default async function TocPage({
         <p className="italic indent-8 mt-2">
           {novelInfo.synopsis}
         </p>
+        <ReadingProgressSection novelId={novelId} readingProgress={readingProgress} />
         <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
         <ContentsSection novelId={novelId} chapters={chapters} />
       </main>

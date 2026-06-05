@@ -1,6 +1,6 @@
 // src/lib/db/queries.ts
 import { db } from './index';
-import { novels, bookmarks, chapters } from './schema';
+import { novels, bookmarks, chapters, readingProgress } from './schema';
 import { eq, and, asc, desc, sql } from 'drizzle-orm';
 
 
@@ -60,7 +60,23 @@ export async function getNovelInfo(userId: string, novelId: string) {
       )
     )
     .limit(1);
-  return (novelInfo.length === 1) ? novelInfo[0] : null;
+  if (novelInfo.length !== 1) {
+    return null;
+  }
+  return novelInfo[0];
+}
+
+export async function getReadingProgress(novelId: number) {
+  const progress = await db
+    .select()
+    .from(readingProgress)
+    .where(eq(readingProgress.novelId, novelId))
+    .innerJoin(chapters, eq(chapters.id, readingProgress.chapterId))
+    .limit(1);
+  if (progress.length !== 1) {
+    return null;
+  }
+  return progress[0];
 }
 
 export async function getBookmarks(novelId: number) {
