@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link"; // Added for routing
 
 interface Chapter {
   id: number;
@@ -60,7 +61,8 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
     if (layout === "double") return "max-w-[1424px]"; 
     return widthStyles[widthLevel];
   };
-const handleSaveBookmark = async () => {
+
+  const handleSaveBookmark = async () => {
     if (bookmarkStatus === "loading") return;
     setBookmarkStatus("loading");
 
@@ -68,7 +70,6 @@ const handleSaveBookmark = async () => {
     if (!currentChapter) return;
 
     try {
-      // Force sanitize variables into clean mathematical integers
       const sanitizedChapterId = Number(currentChapter.id);
       const sanitizedNovelId = Number(novelId);
       const sanitizedPercentage = Math.round(Number(chapterProgress || 0));
@@ -127,13 +128,11 @@ const handleSaveBookmark = async () => {
     if (layout !== "scroll" || !isMounted) return;
 
     const targetChapter = chapterRefs.current[currentChapterIdx];
-    
     const headerOffset = 80; 
     
     if (targetChapter && !hasInitializedProgress.current) {
       setTimeout(() => {
         const chapterTop = targetChapter.offsetTop;
-        
         let scrollTarget = chapterTop - headerOffset;
 
         if (initialPercentage > 0) {
@@ -170,6 +169,7 @@ const handleSaveBookmark = async () => {
     chapterRefs.current.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
+
     const handleScrollProgress = () => {
       if (!hasInitializedProgress.current) return; 
 
@@ -260,7 +260,6 @@ const handleSaveBookmark = async () => {
         pathParts[4] = chapterProgress.toString(); 
         
         const newUrl = pathParts.join('/');
-        
         if (window.location.pathname !== newUrl) {
           window.history.replaceState(null, '', newUrl);
         }
@@ -291,14 +290,25 @@ const handleSaveBookmark = async () => {
   };
 
   if (!isMounted) return null;
-
   const isScroll = layout === "scroll";
 
   return (
     <div className={`transition-colors duration-500 w-full ${themeStyles[theme]} ${isScroll ? "min-h-screen pb-24" : "h-screen flex flex-col overflow-hidden"}`}>
       <header className={`shrink-0 z-50 w-full border-b transition-colors duration-500 px-6 py-3.5 ${isScroll ? "sticky top-0" : ""} ${toolbarStyles[theme]}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-6 flex-wrap">
-          <div className="flex items-center gap-6 flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+            
+            {/* NEW: Back to Dashboard Button */}
+            <Link 
+              href="/dashboard"
+              className={`text-[11px] font-bold uppercase tracking-wider px-3 py-2 rounded-md border flex items-center gap-1.5 transition-all duration-200 active:scale-95 ${inputBg} hover:opacity-80`}
+            >
+              <span>&larr;</span>
+              <span>Dashboard</span>
+            </Link>
+
+            <div className="w-px h-4 bg-current/10 hidden md:block"></div>
+
             <div className="relative">
               <select 
                 value={layout} 
@@ -310,8 +320,6 @@ const handleSaveBookmark = async () => {
                 <option value="double" className="text-black bg-white">Double Page</option>
               </select>
             </div>
-
-            <div className="w-px h-4 bg-current/10 hidden sm:block"></div>
 
             <div className="relative">
               <select 
@@ -400,7 +408,7 @@ const handleSaveBookmark = async () => {
 
             <div className="flex-1 relative group min-h-0">
               <button onClick={goPrev} disabled={currentPage === 1 && currentChapterIdx === 0} className={`absolute -left-12 top-0 bottom-0 w-24 z-10 hover:opacity-100 transition-opacity flex items-center justify-start cursor-pointer disabled:hidden ${totalPages === 0 ? 'opacity-0 pointer-events-none' : 'opacity-0'}`}>
-                <span className="text-5xl opacity-40">&lsaquo;</span>
+                <span className="text-5xl opacity-40">&lssaquo;</span>
               </button>
 
               <div 

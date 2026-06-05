@@ -1,14 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/app/lib/auth/client';
 
 export default function AuthStatus() {
   const router = useRouter();
+  const pathname = usePathname();
   const session = authClient.useSession();
   const [signingOut, setSigningOut] = useState(false);
+
+  if (pathname.startsWith('/novel')) {
+    return null;
+  }
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -23,7 +28,8 @@ export default function AuthStatus() {
 
   if (session.isPending) {
     return (
-      <nav className="sticky top-0 z-50 flex justify-end p-4 bg-white border-b border-neutral-200">
+      <nav className="sticky top-0 z-50 flex justify-between items-center p-4 bg-white border-b border-neutral-200">
+        <Link href="/dashboard" className="text-sm font-bold text-neutral-900">wn-reader</Link>
         <span className="text-sm text-neutral-400">Loading...</span>
       </nav>
     );
@@ -31,7 +37,8 @@ export default function AuthStatus() {
 
   if (!session.data) {
     return (
-      <nav className="sticky top-0 z-50 flex justify-end p-4 bg-white border-b border-neutral-200">
+      <nav className="sticky top-0 z-50 flex justify-between items-center p-4 bg-white border-b border-neutral-200">
+        <Link href="/dashboard" className="text-sm font-bold text-neutral-900">wn-reader</Link>
         <Link href="/auth/sign-in" className="text-sm font-medium hover:underline">
           Sign in
         </Link>
@@ -46,7 +53,10 @@ export default function AuthStatus() {
 
   return (
     <nav className="sticky top-0 z-50 flex justify-between items-center p-4 bg-white border-b border-neutral-200">
-      <span className="text-sm text-neutral-600">Welcome, {displayName}</span>
+      <div className="flex items-center gap-4">
+        <Link href="/dashboard" className="text-sm font-bold text-neutral-900">wn-reader</Link>
+        <span className="text-sm text-neutral-600">Welcome, {displayName}</span>
+      </div>
       <button
         onClick={handleSignOut}
         disabled={signingOut}
