@@ -1,7 +1,7 @@
 // src/lib/db/queries.ts
 import { db } from './index';
 import { novels, bookmarks, chapters } from './schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, desc } from 'drizzle-orm';
 
 
 export async function getUserLibraryData(userId: string) {
@@ -44,7 +44,7 @@ export async function getCollection(userId: string) {
     .select()
     .from(novels)
     .where(eq(novels.userId, userId))
-    .orderBy(novels.createdAt);
+    .orderBy(desc(novels.createdAt));
   return collection;
 }
 
@@ -66,18 +66,19 @@ export async function getBookmarks(novelId: number) {
   const bookmarksList = await db
     .select()
     .from(bookmarks)
-    .where(eq(bookmarks.novelId, novelId));
-    // TODO: order by how far they are therough the book
+    .where(eq(bookmarks.novelId, novelId))
+    .innerJoin(chapters, eq(chapters.id, bookmarks.chapterId))
+    .orderBy(asc(chapters.sortOrder), asc(bookmarks.percentage));
   return bookmarksList;
 }
 
-export async function getTableOfContents(novelId: number) {
-  const contents = await db
+export async function getChapters(novelId: number) {
+  const chaptersList = await db
     .select()
     .from(chapters)
     .where(eq(chapters.novelId, novelId))
-    .orderBy(chapters.sortOrder);
-  return contents;
+    .orderBy(asc(chapters.sortOrder));
+  return chaptersList;
 }
 
 export async function getChapterById(chapterId: number) {

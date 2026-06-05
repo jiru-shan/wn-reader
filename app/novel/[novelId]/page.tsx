@@ -1,27 +1,94 @@
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
+import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
+
+function BookmarksSection({
+  novelId, bookmarks
+}: {
+  novelId: number,
+  bookmarks: {
+    bookmarks: {
+      id: number,
+      name: string,
+      percentage: number
+    }
+    chapters: {
+      id: number,
+      sortOrder: number
+    }
+  }[]
+}) {
+  if (bookmarks.length === 0) {
+    return <></>
+  }
+
+  // TODO: "continue where you left off" button, linking to ReadingProgress
+  return (
+    <>
+      <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
+      <ul>
+        {
+          bookmarks.map(bkmk =>
+            // TODO: replace sortOrder with chapter number
+            <li key={bkmk.bookmarks.id}>
+              <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
+                {bkmk.bookmarks.name}&nbsp;&ndash;&nbsp;Chapter {bkmk.chapters.sortOrder}
+              </Link>
+            </li>
+            // TODO: how to visually distinguish the chapter number part from the bookmark name?
+          )
+        }
+      </ul>
+    </>
+  );
+}
+
+function ContentsSection({
+  novelId, chapters
+}: {
+  novelId: number,
+  chapters: {
+    id: number,
+    title: string
+  }[]
+}) {
+  return (
+    <>
+        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
+        <ul>
+          {chapters.map(chapter =>
+            <li key={chapter.id}>
+              <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
+                {chapter.title}
+              </Link>
+            </li>
+          )}
+        </ul>
+        </>
+  );
+}
 
 export default async function TocPage({
   params
 }: {
   params: Promise<{ novelId: string }>
 }) {
-  const { novelId: urlNovelId } = await params; 
   const { data: session } = await auth.getSession();
-  
+  // TODO: handle this properly
   if (session === null) {
     return <></>;
   }
-  
-  const novelId = Number(urlNovelId); 
+
+  const { novelId: urlNovelId } = await params;
+  const novelId = Number(urlNovelId);
   const novelInfo = await getNovelInfo(session.user.id, novelId);
-  
   if (novelInfo === null) {
     return <></>;
   }
-  const contents = await getTableOfContents(novelId);
+
+  const bookmarks = await getBookmarks(novelId);
+  const chapters = await getChapters(novelId);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-white font-sans dark:bg-black">
@@ -38,20 +105,8 @@ export default async function TocPage({
         <p>
           <em>{novelInfo.synopsis}</em>
         </p>
-        <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
-        <ul>
-          <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> 
-        </ul>
-        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
-        <ul>
-          {contents.map(chapter =>
-            <li key={chapter.id}>
-              <Link href={`/novel/${novelId}/${chapter.id}`}>
-                {chapter.title}
-              </Link>
-            </li>
-          )}
-        </ul>
+        <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
+        <ContentsSection novelId={novelId} chapters={chapters} />
       </main>
     </div>
   );
