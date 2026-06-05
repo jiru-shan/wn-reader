@@ -6,7 +6,6 @@ export const config = {
   matcher: [
     '/reader/:path*',
     '/dashboard/:path*',
-    '/dashboard-test/:path*',
     '/library/:path*',
     '/bookmarks/:path*',
     '/profile/:path*',

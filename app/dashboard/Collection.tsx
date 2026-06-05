@@ -63,7 +63,7 @@ export default function Collection({
   if (collection.length === 0) {
     return (
       // TODO: link to the browser extension
-      <p>Your collection is currently empty. Use the browser extension to add a novel to your collection.</p>
+      <p>Your collection is currently empty. Enter a link to the TOC of a novel of a registered site.</p>
     );
   }
 
