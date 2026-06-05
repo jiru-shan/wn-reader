@@ -29,7 +29,6 @@ export default function ScraperWidgetPage() {
     if (!containerRef.current || typeof window === 'undefined') return;
     
     const sendHeight = () => {
-      // getBoundingClientRect ensures we get accurate, un-rounded pixel heights
       const height = containerRef.current?.getBoundingClientRect().height;
       window.parent.postMessage({ type: 'SCRAPE_RESIZE', height }, '*');
     };
@@ -50,7 +49,7 @@ export default function ScraperWidgetPage() {
       const response = await fetchScrapingConfig(url);
 
       if (!response.success || !response.data) {
-        setError('Site not supported');
+        setError('Site not supported (yet).');
         setLoading(false);
         return;
       }
@@ -60,6 +59,7 @@ export default function ScraperWidgetPage() {
 
       if (!window.chrome?.runtime) {
         setError('Chrome extension runtime not found. Ensure extension is active.');
+        setConfig(null); // Clear progress message if extension isn't found
         setLoading(false);
         return;
       }
@@ -75,12 +75,14 @@ export default function ScraperWidgetPage() {
         async (chromeResponse) => {
           if (window.chrome.runtime.lastError) {
             setError('Extension error: ' + window.chrome.runtime.lastError.message);
+            setConfig(null); // Clear progress on extension errors
             setLoading(false);
             return;
           }
           
           if (!chromeResponse?.success) {
             setError('Scrape failed: ' + chromeResponse?.error);
+            setConfig(null); // Clear progress on scraping failures
             setLoading(false);
             return;
           }
@@ -96,19 +98,23 @@ export default function ScraperWidgetPage() {
           if (!saveResult.success) {
             setError(`Database save failed: ${saveResult.error}`);
           } else {
-            setSuccessMessage('🎉 Novel and Chapter successfully saved to your library!');
+            setSuccessMessage('Novel and Chapter successfully saved to your library!');
             setUrl(''); 
             
             if (window.parent) {
               window.parent.postMessage({ type: 'SCRAPE_SUCCESS' }, '*');
             }
           }
+          
+          // CRITICAL FIX: Clear the config state here so the message unmounts
+          setConfig(null); 
           setLoading(false);
         }
       );
 
     } catch (err) {
       setError('Invalid URL or network error');
+      setConfig(null); // Clear progress on network errors
       setLoading(false);
     }
   };
@@ -121,7 +127,6 @@ export default function ScraperWidgetPage() {
         fontFamily: 'sans-serif', 
         background: 'transparent', 
         overflow: 'hidden',
-        // 4px padding prevents focus outline rings from getting clipped at the iframe edge
         padding: '4px' 
       }}
     >
@@ -154,10 +159,11 @@ export default function ScraperWidgetPage() {
       {error && <p style={{ color: '#e53e3e', fontWeight: '500', margin: '12px 0 0 0', fontSize: '14px' }}>❌ {error}</p>}
       {successMessage && <p style={{ color: '#38a169', fontWeight: '500', margin: '12px 0 0 0', fontSize: '14px' }}>{successMessage}</p>}
       
+      {/* This box now automatically drops out of the DOM when config is reset to null */}
       {config && (
         <div style={{ marginTop: '12px', padding: '12px', background: '#f7fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
           <p style={{ margin: 0, color: '#4a5568', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span>⚙️</span> Rule match found for source mapping...
+            <span></span> Webnovel located, scraping in progress.
           </p>
         </div>
       )}

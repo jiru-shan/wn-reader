@@ -19,7 +19,6 @@ export default async function DashboardPage() {
           Your collection
         </h1>
         
-        {/* Render it directly here */}
         <ScraperEmbed />
         
         <Collection collection={collection} />
