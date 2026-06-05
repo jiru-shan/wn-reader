@@ -11,7 +11,6 @@ export interface JSONImportChapter {
   sortOrder: number;
 }
 
-// ⚡ Structural Blueprint updated to match your new schema columns
 export interface JSONImportNovel {
   title: string;
   synopsis: string | null;
@@ -20,35 +19,34 @@ export interface JSONImportNovel {
   chapters: JSONImportChapter[];
 }
 
+//test function for importing novel from json (going to have to connect similar func to extension)
 export async function importNovelFromJSON(payload: JSONImportNovel, userId: string) {
   if (!payload.title || !userId) {
     throw new Error('Invalid payload formatting or missing account credentials');
   }
 
-  // 1. Step A: Insert the parent novel row directly over HTTP
+  //insert novel into db
   const [insertedNovel] = await db.insert(novels)
     .values({
       title: payload.title,
       synopsis: payload.synopsis,
-      author: payload.author, // ➕ Added
-      source: payload.source, // ➕ Added
+      author: payload.author, 
+      source: payload.source, 
       userId: userId,
     })
-    .returning({ id: novels.id }); // Capture the auto-generated primary key ID
+    .returning({ id: novels.id });
 
-  // 2. Step B: Bulk insert all chapters tied to that newly created novel ID
+  //insert chapters into db
   if (payload.chapters && payload.chapters.length > 0) {
     const chaptersToInsert = payload.chapters.map((chap) => ({
       title: chap.title,
       content: chap.content,
       sortOrder: chap.sortOrder,
-      novelId: insertedNovel.id, // Safely reference the parent id we just captured above
+      novelId: insertedNovel.id, 
     }));
 
-    // Send the array as a single bulk operation over the HTTP driver
     await db.insert(chapters).values(chaptersToInsert);
   }
 
-  // 3. Update the Next.js router data cache
   revalidatePath('/dashboard-test');
 }
