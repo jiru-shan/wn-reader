@@ -2,37 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-<<<<<<< HEAD
-import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
-
-function ReadingProgressSection({
-  novelId, readingProgress
-}: {
-  novelId: number,
-  readingProgress: {
-    reading_progress: {
-      percentage: number
-    },
-    chapters: {
-      sortOrder: number
-    }
-  } | null
-}) {
-  if (readingProgress === null) {
-    return <></>;
-  }
-
-  return (
-    <p className="text-lg font-semibold text-center mt-2">
-      <Link href={`/novel/${novelId}/${readingProgress.reading_progress.percentage}`} className="hover:underline">
-        Continue where you left off (Chapter&nbsp;{readingProgress.chapters.sortOrder})
-      </Link>
-    </p>
-  );
-}
-=======
 import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
->>>>>>> 3d51b48f3c58c4a3dae67eeb888054157d8c150a
 
 function BookmarksSection({
   novelId, bookmarks

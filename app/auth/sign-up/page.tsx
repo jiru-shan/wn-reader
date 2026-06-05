@@ -42,7 +42,7 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
     } catch {
       setError('Could not create account. This email may already be registered.');
