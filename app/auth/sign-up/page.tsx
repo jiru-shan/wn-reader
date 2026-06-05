@@ -41,8 +41,7 @@ export default function SignUpPage() {
         setError('Could not create account. This email may already be registered.');
         return;
       }
-
-      router.push('/');
+      router.push('/dashboard');
       router.refresh();
     } catch {
       setError('Could not create account. This email may already be registered.');

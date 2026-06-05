@@ -60,7 +60,9 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
     if (layout === "double") return "max-w-[1424px]"; 
     return widthStyles[widthLevel];
   };
-const handleSaveBookmark = async () => {
+
+  // Your original manual save bookmark handler (Kept intact!)
+  const handleSaveBookmark = async () => {
     if (bookmarkStatus === "loading") return;
     setBookmarkStatus("loading");
 
@@ -68,7 +70,6 @@ const handleSaveBookmark = async () => {
     if (!currentChapter) return;
 
     try {
-      // Force sanitize variables into clean mathematical integers
       const sanitizedChapterId = Number(currentChapter.id);
       const sanitizedNovelId = Number(novelId);
       const sanitizedPercentage = Math.round(Number(chapterProgress || 0));
@@ -100,6 +101,50 @@ const handleSaveBookmark = async () => {
     }
   };
 
+  // --- AUTOMATIC BACKGROUND BOOKMARK ENGINE ---
+  useEffect(() => {
+    // Avoid running until settings & initial percentage scroll positions are locked in
+    if (!isMounted || !hasInitializedProgress.current) return;
+
+    const currentChapter = chapters[currentChapterIdx];
+    if (!currentChapter) return;
+
+    const autoSaveBookmark = () => {
+      const payload = JSON.stringify({
+        chapterId: Number(currentChapter.id),
+        novelId: Number(novelId),
+        percentage: Math.round(Number(chapterProgress || 0)),
+        url: window.location.pathname,
+        chapterTitle: currentChapter.title,
+      });
+
+      fetch("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true, // Allows the request to survive tab closing or hitting the back button
+      }).catch((err) => console.error("Silent auto-save failed:", err));
+    };
+
+    // Debounce background auto-saves to trigger 2.5 seconds after a user stops scrolling/flipping pages
+    const debounceTimer = setTimeout(autoSaveBookmark, 2500);
+
+    // Fires instantly if the user closes the tab, goes back, or minimizes the app
+    const handleVisibilityOrUnload = () => {
+      autoSaveBookmark();
+    };
+
+    window.addEventListener("beforeunload", handleVisibilityOrUnload);
+    document.addEventListener("visibilitychange", handleVisibilityOrUnload);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      window.removeEventListener("beforeunload", handleVisibilityOrUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityOrUnload);
+    };
+  }, [currentChapterIdx, chapterProgress, novelId, chapters, isMounted]);
+  // --------------------------------------------
+
   useEffect(() => {
     const savedSettings = localStorage.getItem("reader_settings");
     if (savedSettings) {
@@ -127,13 +172,11 @@ const handleSaveBookmark = async () => {
     if (layout !== "scroll" || !isMounted) return;
 
     const targetChapter = chapterRefs.current[currentChapterIdx];
-    
     const headerOffset = 80; 
     
     if (targetChapter && !hasInitializedProgress.current) {
       setTimeout(() => {
         const chapterTop = targetChapter.offsetTop;
-        
         let scrollTarget = chapterTop - headerOffset;
 
         if (initialPercentage > 0) {
@@ -170,6 +213,7 @@ const handleSaveBookmark = async () => {
     chapterRefs.current.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
+
     const handleScrollProgress = () => {
       if (!hasInitializedProgress.current) return; 
 
