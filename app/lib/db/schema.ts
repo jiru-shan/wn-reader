@@ -66,7 +66,7 @@ export const readingProgress = pgTable('reading_progress', {
   percentage: integer('percentage').default(0).notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (table) => [
-  unique('user_novel_progress_unique').on(table.userId, table.novelId),
+  unique('user_novel_bookmark_unique').on(table.userId, table.novelId),
 ]);
 
 // Scraping Info
@@ -94,7 +94,6 @@ export const novelsRelations = relations(novels, ({ one, many }) => ({
   }),
   chapters: many(chapters),
   bookmarks: many(bookmarks),
-  readingProgress: many(readingProgress), 
 }));
 
 export const chaptersRelations = relations(chapters, ({ one, many }) => ({
@@ -103,7 +102,6 @@ export const chaptersRelations = relations(chapters, ({ one, many }) => ({
     references: [novels.id],
   }),
   bookmarks: many(bookmarks),
-  readingProgress: many(readingProgress), 
 }));
 
 export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
@@ -117,21 +115,6 @@ export const bookmarksRelations = relations(bookmarks, ({ one }) => ({
   }),
   chapter: one(chapters, {
     fields: [bookmarks.chapterId],
-    references: [chapters.id],
-  }),
-}));
-
-export const readingProgressRelations = relations(readingProgress, ({ one }) => ({
-  user: one(usersInNeonAuth, {
-    fields: [readingProgress.userId],
-    references: [usersInNeonAuth.id],
-  }),
-  novel: one(novels, {
-    fields: [readingProgress.novelId],
-    references: [novels.id],
-  }),
-  chapter: one(chapters, {
-    fields: [readingProgress.chapterId],
     references: [chapters.id],
   }),
 }));
