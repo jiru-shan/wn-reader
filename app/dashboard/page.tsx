@@ -4,8 +4,6 @@ import { getCollection } from '@/app/lib/db/queries';
 import Collection from '@/app/dashboard/Collection';
 import ScraperEmbed from '@/app/dashboard/ScraperEmbed'; 
 
-
-
 export default async function DashboardPage() {
   const { data: session } = await auth.getSession();
   if (session === null) notFound();
