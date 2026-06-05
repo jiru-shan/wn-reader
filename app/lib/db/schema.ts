@@ -1,4 +1,3 @@
-
 import { pgTable, pgSchema, uuid, serial, text, timestamp, integer, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -10,24 +9,20 @@ export const usersInNeonAuth = neonAuth.table('user', {
   email: text('email').unique().notNull(),
 });
 
-
-
-//novels
+// Novels
 export const novels = pgTable('novels', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
   synopsis: text('synopsis'),
   author: text('author'),
   source: text('source'),
-  
   userId: uuid('user_id')
     .notNull()
     .references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
-    
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-//chapters
+// Chapters
 export const chapters = pgTable('chapters', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
@@ -39,66 +34,53 @@ export const chapters = pgTable('chapters', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-
-//bookmarks
+// Bookmarks (Manual Saves - 1 to Many)
 export const bookmarks = pgTable('bookmarks', {
   id: serial('id').primaryKey(),
-  
   userId: uuid('user_id')
     .notNull()
     .references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
-    
   novelId: integer('novel_id')
     .notNull()
     .references(() => novels.id, { onDelete: 'cascade' }),
-    
   chapterId: integer('chapter_id')
     .notNull()
     .references(() => chapters.id, { onDelete: 'cascade' }),
-    
   percentage: integer('percentage').default(0).notNull(),
   name: text('name').notNull(), 
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 }); 
-// Note: The unique constraint was removed here so multiple bookmarks can exist per novel
 
-// User Story #10: Autobookmark / Reading Progress (Strictly 1 per novel)
+// Reading Progress (Auto-Tracker - 1 to 1 per Novel)
 export const readingProgress = pgTable('reading_progress', {
   id: serial('id').primaryKey(),
-  
   userId: uuid('user_id')
     .notNull()
     .references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
-    
   novelId: integer('novel_id')
     .notNull()
     .references(() => novels.id, { onDelete: 'cascade' }),
-    
   chapterId: integer('chapter_id')
     .notNull()
     .references(() => chapters.id, { onDelete: 'cascade' }),
-    
   percentage: integer('percentage').default(0).notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (table) => [
   unique('user_novel_progress_unique').on(table.userId, table.novelId),
 ]);
 
-
-// scraping info
+// Scraping Info
 export const scrapingInfo = pgTable('scraping_info', {
   id: serial('id').primaryKey(),
-  source: text('source').notNull().unique(),   // URL of the site being scraped
-  title: text('title').notNull(),              // CSS class name for title element
-  synopsis: text('synopsis'),        // CSS class name for synopsis element
-  author: text('author'),            // CSS class name for author element
-  chapterTitle: text('chapter_title'),    // CSS class name for chapter title element
-  chapterContent: text('chapter_content').notNull(), // CSS class name for chapter content element
+  source: text('source').notNull().unique(),
+  title: text('title').notNull(),
+  synopsis: text('synopsis'),
+  author: text('author'),
+  chapterTitle: text('chapter_title'),
+  chapterContent: text('chapter_content').notNull(),
 });
 
-
-
-//relations template for novels (for other relations just copy this structure)
+// Relations
 export const novelsRelations = relations(novels, ({ one, many }) => ({
   author: one(usersInNeonAuth, {
     fields: [novels.userId],

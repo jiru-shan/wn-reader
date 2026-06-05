@@ -21,7 +21,6 @@ export default function BookmarkButton() {
 
     setIsSaving(true);
     try {
-      // Formats name as requested by Matthew in the chat
       const bookmarkName = `Chapter ${chapterNum}`; 
       await addManualBookmark(novelId, chapterNum, percentage, bookmarkName);
       alert("Bookmark saved!");
