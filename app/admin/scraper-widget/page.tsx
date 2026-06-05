@@ -29,7 +29,6 @@ export default function ScraperWidgetPage() {
     if (!containerRef.current || typeof window === 'undefined') return;
     
     const sendHeight = () => {
-      // getBoundingClientRect ensures we get accurate, un-rounded pixel heights
       const height = containerRef.current?.getBoundingClientRect().height;
       window.parent.postMessage({ type: 'SCRAPE_RESIZE', height }, '*');
     };
@@ -50,7 +49,7 @@ export default function ScraperWidgetPage() {
       const response = await fetchScrapingConfig(url);
 
       if (!response.success || !response.data) {
-        setError('Site not supported');
+        setError('Site not supported (yet).');
         setLoading(false);
         return;
       }
@@ -96,7 +95,7 @@ export default function ScraperWidgetPage() {
           if (!saveResult.success) {
             setError(`Database save failed: ${saveResult.error}`);
           } else {
-            setSuccessMessage('🎉 Novel and Chapter successfully saved to your library!');
+            setSuccessMessage('Novel and Chapter successfully saved to your library!');
             setUrl(''); 
             
             if (window.parent) {
@@ -121,7 +120,6 @@ export default function ScraperWidgetPage() {
         fontFamily: 'sans-serif', 
         background: 'transparent', 
         overflow: 'hidden',
-        // 4px padding prevents focus outline rings from getting clipped at the iframe edge
         padding: '4px' 
       }}
     >
@@ -157,7 +155,7 @@ export default function ScraperWidgetPage() {
       {config && (
         <div style={{ marginTop: '12px', padding: '12px', background: '#f7fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
           <p style={{ margin: 0, color: '#4a5568', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span>⚙️</span> Rule match found for source mapping...
+            <span></span> Webnovel located, scraping in progress.
           </p>
         </div>
       )}

@@ -187,7 +187,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
       }
       const scrolledInChapter = scrollY - chapterTop + headerOffset;
       const maxScroll = chapterHeight - windowHeight + headerOffset;
-      let percentage = Math.round((scrolledInChapter / maxScroll) * 100);
+      const percentage = Math.round((scrolledInChapter / maxScroll) * 100);
       
       setChapterProgress(Math.max(0, Math.min(100, percentage)));
     };
