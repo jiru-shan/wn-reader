@@ -103,6 +103,9 @@ export default async function TocPage({
         <p>
           Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external" className="hover:underline">{novelInfo.source}</a> : <em>(none listed)</em>}
         </p>
+        <p>
+          Date added: {novelInfo.createdAt.toLocaleDateString()}
+        </p>
         <p className="italic indent-8 mt-2">
           {novelInfo.synopsis}
         </p>
