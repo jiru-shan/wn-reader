@@ -32,9 +32,9 @@ function BookmarksSection({
         {
           bookmarks.map(bkmk =>
             // TODO: replace sortOrder with chapter number
-            <li key={bkmk.bookmarks.id}>
+            <li key={bkmk.bookmarks.id} className="indent-8">
               <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
-                {bkmk.bookmarks.name}&nbsp;&ndash;&nbsp;Chapter {bkmk.chapters.sortOrder}
+                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter {bkmk.chapters.sortOrder}
               </Link>
             </li>
             // TODO: how to visually distinguish the chapter number part from the bookmark name?
@@ -57,7 +57,7 @@ function ContentsSection({
   return (
     <>
         <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
-        <ul>
+        <ul className="indent-8">
           {chapters.map(chapter =>
             <li key={chapter.id}>
               <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
@@ -76,7 +76,7 @@ export default async function TocPage({
   params: Promise<{ novelId: string }>
 }) {
   const { data: session } = await auth.getSession();
-  // this shouldn't happen because the site should redirect to the login page if the user is logged in.
+  // note: this shouldn't happen because the site should redirect to the login page if the user is logged in.
   if (session === null) {
     notFound();
   }
@@ -103,8 +103,8 @@ export default async function TocPage({
         <p>
           Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external" className="hover:underline">{novelInfo.source}</a> : <em>(none listed)</em>}
         </p>
-        <p>
-          <em>{novelInfo.synopsis}</em>
+        <p className="italic indent-8 mt-2">
+          {novelInfo.synopsis}
         </p>
         <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
         <ContentsSection novelId={novelId} chapters={chapters} />

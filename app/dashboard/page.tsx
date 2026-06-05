@@ -6,7 +6,7 @@ import Collection from '@/app/dashboard/Collection';
 
 export default async function DashboardPage() {
   const { data: session } = await auth.getSession();
-  // this shouldn't happen because the site should redirect to the login page if the user is logged in.
+  // note: this shouldn't happen because the site should redirect to the login page if the user is logged in.
   if (session === null) {
     notFound();
   }
