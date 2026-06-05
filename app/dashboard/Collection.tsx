@@ -48,10 +48,19 @@ function Card({
   );
 }
 
-export default function Collection({ collection }) {
+export default function Collection({
+  collection
+}: {
+  collection: {
+    id: number,
+    title: string,
+    author: string | null,
+    synopsis: string | null
+  }[]
+}) {
   const [query, setQuery] = useState('');
 
-  if (collection.length == 0) {
+  if (collection.length === 0) {
     return (
       // TODO: link to the browser extension
       <p>Your collection is currently empty. Use the browser extension to add a novel to your collection.</p>
