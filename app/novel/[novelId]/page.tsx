@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
@@ -75,16 +76,16 @@ export default async function TocPage({
   params: Promise<{ novelId: string }>
 }) {
   const { data: session } = await auth.getSession();
-  // TODO: handle this properly
+  // this shouldn't happen because the site should redirect to the login page if the user is logged in.
   if (session === null) {
-    return <></>;
+    notFound();
   }
 
   const { novelId: urlNovelId } = await params;
   const novelId = Number(urlNovelId);
-  const novelInfo = await getNovelInfo(session.user.id, novelId);
+  const novelInfo = await getNovelInfo(session.user.id, urlNovelId);
   if (novelInfo === null) {
-    return <></>;
+    notFound();
   }
 
   const bookmarks = await getBookmarks(novelId);

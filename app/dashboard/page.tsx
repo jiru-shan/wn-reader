@@ -1,12 +1,14 @@
+import { notFound } from 'next/navigation';
+
 import { auth } from '@/app/lib/auth/server';
 import { getCollection } from '@/app/lib/db/queries';
 import Collection from '@/app/dashboard/Collection';
 
 export default async function DashboardPage() {
   const { data: session } = await auth.getSession();
-  // TODO: how to handle this properly?
+  // this shouldn't happen because the site should redirect to the login page if the user is logged in.
   if (session === null) {
-    return <></>
+    notFound();
   }
   const collection = await getCollection(session.user.id);
 
