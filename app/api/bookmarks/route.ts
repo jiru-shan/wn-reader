@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
 import { bookmarks } from "@/app/lib/db/schema";
-import { eq, and, ne } from "drizzle-orm";
+import { eq, and, like, notLike, or, isNull } from "drizzle-orm";
 import { auth } from "@/app/lib/auth/server";
 
 export async function POST(request: Request) {
@@ -12,17 +12,17 @@ export async function POST(request: Request) {
     }
     const userId = sessionContext.data.user.id;
     
-    // 1. Pull the new isAuto flag from the client
     const { novelId, chapterId, percentage, chapterTitle, isAuto } = await request.json();
 
     if (!chapterId || !novelId) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
-    // 2. Use a distinct hidden name if it's an background auto-save
-    const bookmarkName = isAuto ? "__auto_progress__" : (chapterTitle || `Chapter ${chapterId}`);
+    const titleText = chapterTitle || `Chapter ${chapterId}`;
+    const baseName = `${titleText} (${percentage}%)`;
+    
+    const bookmarkName = isAuto ? `[Auto] ${baseName}` : baseName;
 
-    // 3. Query explicitly for the right type of bookmark (Auto vs Manual slot)
     const existing = await db
       .select()
       .from(bookmarks)
@@ -31,8 +31,8 @@ export async function POST(request: Request) {
           eq(bookmarks.userId, userId),
           eq(bookmarks.novelId, novelId),
           isAuto 
-            ? eq(bookmarks.name, "__auto_progress__")
-            : ne(bookmarks.name, "__auto_progress__") // Keeps manual slots safe
+            ? like(bookmarks.name, "[Auto]%") 
+            : or(notLike(bookmarks.name, "[Auto]%"), isNull(bookmarks.name)) 
         )
       )
       .limit(1);
