@@ -16,6 +16,19 @@ export async function getScrapingConfig(url: string) {
   return config.length ? config[0] : null;
 }
 
+export async function getReadingProgress(novelId: number) {
+  const progress = await db
+    .select()
+    .from(readingProgress)
+    .where(eq(readingProgress.novelId, novelId))
+    .innerJoin(chapters, eq(chapters.id, readingProgress.chapterId))
+    .limit(1);
+  if (progress.length !== 1) {
+    return null;
+  }
+  return progress[0];
+}
+
 export async function getUserLibraryData(userId: string) {
   // check to see if id is valid
   if (!userId || typeof userId !== 'string') {
