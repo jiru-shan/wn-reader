@@ -1,26 +1,106 @@
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
+import { getNovelInfo, getBookmarks, getChapters } from '@/app/lib/db/queries';
 
+function BookmarksSection({
+  novelId, bookmarks
+}: {
+  novelId: number,
+  bookmarks: {
+    bookmarks: {
+      id: number,
+      name: string,
+      percentage: number
+    }
+    chapters: {
+      id: number,
+      sortOrder: number
+    }
+  }[]
+}) {
+  if (bookmarks.length === 0) {
+    return <></>
+  }
+
+  // TODO: "continue where you left off" button, linking to ReadingProgress
+  return (
+    <>
+      <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
+      <ul>
+        {
+          bookmarks.map(bkmk =>
+            // TODO: replace sortOrder with chapter number
+            <li key={bkmk.bookmarks.id} className="indent-8">
+              <Link href={`/novel/${novelId}/${bkmk.chapters.id}/${bkmk.bookmarks.percentage}`} className="hover:underline">
+                <span className="italic">{bkmk.bookmarks.name}</span>&nbsp;&ndash;&nbsp;Chapter {bkmk.chapters.sortOrder}
+              </Link>
+            </li>
+            // TODO: how to visually distinguish the chapter number part from the bookmark name?
+          )
+        }
+      </ul>
+    </>
+  );
+}
+
+function ContentsSection({
+  novelId, chapters
+}: {
+  novelId: number,
+  chapters: {
+    id: number,
+    title: string
+  }[]
+}) {
+  return (
+    <>
+        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
+        <ul className="indent-8">
+          {chapters.map(chapter =>
+            <li key={chapter.id}>
+              <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
+                {chapter.title}
+              </Link>
+            </li>
+          )}
+        </ul>
+        </>
+  );
+}
 export default async function TocPage({
   params
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }> // Fixed to match your folder name '[slug]'
 }) {
+  // 1. Fetch session and cast as any to bypass strict type definition mismatches
+  const sessionContext = await auth.getSession() as any;
+
+  // 2. Safely extract user whether it is nested or on the top level
+  const user = sessionContext?.data?.user || sessionContext?.user || sessionContext?.data;
+
+  // 3. Prevent crashes if session context is missing or logged out
+  if (!user || !user.id) {
+    notFound();
+  }
+
+  // 4. Await parameters and extract 'slug' (which holds your novel ID number)
   const { slug } = await params;
-  const { data: session } = await auth.getSession();
-  // TODO: how to handle this properly?
-  if (session === null) {
-    return <></>;
-  }
   const novelId = Number(slug);
-  const novelInfo = await getNovelInfo(session.user.id, novelId);
-  // TODO: handle
-  if (novelInfo === null) {
-    return <></>;
+
+  if (isNaN(novelId)) {
+    notFound();
   }
-  const contents = await getTableOfContents(novelId);
+
+  // 5. Fetch layout details using safe keys
+  const novelInfo = await getNovelInfo(user.id, slug);
+  if (novelInfo === null) {
+    notFound();
+  }
+
+  const bookmarks = await getBookmarks(novelId);
+  const chapters = await getChapters(novelId);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-white font-sans dark:bg-black">
@@ -29,36 +109,19 @@ export default async function TocPage({
           {novelInfo.title}
         </h1>
         <p>
-          Author: {novelInfo.author ? novelInfo.author : <em>(none listed)</em>} {/* TODO: is there a shorter way to do this? */}
+          Author: {novelInfo.author ? novelInfo.author : <em>(none listed)</em>}
         </p>
         <p>
-          {/* TODO: how should it display when the URL is very long? */}
-          {/* TODO: link styling */}
-          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external">{novelInfo.source}</a> : <em>(none listed)</em>} {/* TODO: format as external link */}
+          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external" className="hover:underline">{novelInfo.source}</a> : <em>(none listed)</em>}
         </p>
-        {/* TODO: use novelInfo.createdAt */}
         <p>
-          {/* TODO: style this in some way to make it clear that it's part of the text, rather than from this app */}
-          {/* TODO: what to do if there's no synopsis? */}
-          <em>{novelInfo.synopsis}</em>
+          Date added: {novelInfo.createdAt.toLocaleDateString()}
         </p>
-        <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
-        <ul>
-          {/* TODO */}
-          <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> {/* TODO: how to visually distinguish the chapter # part from the bookmark name? */}
-        </ul>
-        {/* TODO: gap before the "Chapters" section */}
-        <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
-        <ul>
-          {contents.map(chapter =>
-            // TODO: use sort_order
-            <li key={chapter.id}>
-              <Link href={`/novel/${novelId}/${chapter.id}`}>
-                {chapter.title}
-              </Link>
-            </li>
-          )}
-        </ul>
+        <p className="italic indent-8 mt-2">
+          {novelInfo.synopsis}
+        </p>
+        <BookmarksSection novelId={novelId} bookmarks={bookmarks} />
+        <ContentsSection novelId={novelId} chapters={chapters} />
       </main>
     </div>
   );
