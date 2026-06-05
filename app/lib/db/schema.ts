@@ -1,22 +1,18 @@
-// src/lib/db/schema.ts
+
 import { pgTable, pgSchema, uuid, serial, text, timestamp, integer, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-// ==========================================
-// 1. NEON AUTH INTERNAL TABLE MAP
-// ==========================================
 export const neonAuth = pgSchema('neon_auth');
 
 export const usersInNeonAuth = neonAuth.table('user', {
-  // ⚡ FIX: Change this from text() to uuid()
   id: uuid('id').primaryKey().notNull(), 
   name: text('name').notNull(),
   email: text('email').unique().notNull(),
 });
 
-// ==========================================
-// 2. YOUR CUSTOM CORE TABLES
-// ==========================================
+
+
+//novels
 export const novels = pgTable('novels', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
@@ -24,7 +20,6 @@ export const novels = pgTable('novels', {
   author: text('author'),
   source: text('source'),
   
-  // ⚡ FIX: Change this from text() to uuid() to match Neon Auth
   userId: uuid('user_id')
     .notNull()
     .references(() => usersInNeonAuth.id, { onDelete: 'cascade' }),
@@ -32,6 +27,7 @@ export const novels = pgTable('novels', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+//chapters
 export const chapters = pgTable('chapters', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
@@ -43,11 +39,8 @@ export const chapters = pgTable('chapters', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// ==========================================
-// 3. BOOKMARK SCHEMAS
-// ==========================================
 
-// User Story #5: Manual Bookmarks (Users can have many per novel)
+//bookmarks
 export const bookmarks = pgTable('bookmarks', {
   id: serial('id').primaryKey(),
   
@@ -91,9 +84,21 @@ export const readingProgress = pgTable('reading_progress', {
   unique('user_novel_progress_unique').on(table.userId, table.novelId),
 ]);
 
-// ==========================================
-// 4. RELATIONS
-// ==========================================
+
+// scraping info
+export const scrapingInfo = pgTable('scraping_info', {
+  id: serial('id').primaryKey(),
+  source: text('source').notNull().unique(),   // URL of the site being scraped
+  title: text('title').notNull(),              // CSS class name for title element
+  synopsis: text('synopsis'),        // CSS class name for synopsis element
+  author: text('author'),            // CSS class name for author element
+  chapterTitle: text('chapter_title'),    // CSS class name for chapter title element
+  chapterContent: text('chapter_content').notNull(), // CSS class name for chapter content element
+});
+
+
+
+//relations template for novels (for other relations just copy this structure)
 export const novelsRelations = relations(novels, ({ one, many }) => ({
   author: one(usersInNeonAuth, {
     fields: [novels.userId],

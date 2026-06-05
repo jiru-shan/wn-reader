@@ -3,19 +3,17 @@ import { db } from './index';
 import { novels, bookmarks, chapters } from './schema';
 import { eq, and, asc } from 'drizzle-orm';
 
-/**
- * Fetches a user's library dashboard information using their strict UUID identifier
- */
+
 export async function getUserLibraryData(userId: string) {
-  // Defensive check to ensure a valid string is passed
+  // check to see if id is valid
   if (!userId || typeof userId !== 'string') {
     throw new Error('A valid User UUID string is required');
   }
 
-  // Concurrently fetch both data sets from Neon
+  // fetch from neon
   const [authoredNovels, userBookmarks] = await Promise.all([
     
-    // 1. Fetch novels created by this specific UUID user
+    //fetch novels
     db.query.novels.findMany({
       where: eq(novels.userId, userId),
       with: {
@@ -25,7 +23,7 @@ export async function getUserLibraryData(userId: string) {
       },
     }),
 
-    // 2. Fetch all bookmarks saved by this specific UUID user
+    //fetch bookmarks
     db.query.bookmarks.findMany({
       where: eq(bookmarks.userId, userId),
       with: {
@@ -62,6 +60,15 @@ export async function getNovelInfo(userId: string, novelId: number) {
     )
     .limit(1);
   return (novelInfo.length === 1) ? novelInfo[0] : null;
+}
+
+export async function getBookmarks(novelId: number) {
+  const bookmarksList = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.novelId, novelId));
+    // TODO: order by how far they are therough the book
+  return bookmarksList;
 }
 
 export async function getTableOfContents(novelId: number) {
