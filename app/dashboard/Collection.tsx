@@ -40,7 +40,7 @@ function Card({
   }
 }) {
   return (
-    <li className="h-64 sm:h-48 outline-2 p-2 rounded-xl overflow-hidden" key={novel.id}>
+    <li className="h-64 sm:h-48 outline-2 p-2 rounded-xl overflow-hidden">
       <h2 className="line-clamp-3 sm:line-clamp-2 text-2xl font-semibold"><Link href={`/novel/${novel.id}`} className="hover:underline">{novel.title}</Link></h2>
       {novel.author ? <p className="line-clamp-1"><em>by {novel.author}</em></p> : null}
       <p className="line-clamp-8 sm:line-clamp-5">{novel.synopsis}</p>
@@ -65,7 +65,7 @@ export default function Collection({ collection }) {
       <SearchBar setQuery={setQuery} />
       <ul className="flex flex-col gap-4">
         {
-          (filteredCollection.length > 0) ? filteredCollection.map(novel => <Card novel={novel} />) : <p>None of the novels in your collection match your search query.</p>
+          (filteredCollection.length > 0) ? filteredCollection.map(novel => <Card novel={novel} key={novel.id} />) : <p>None of the novels in your collection match your search query.</p>
         }
       </ul>
     </>

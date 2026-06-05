@@ -1,26 +1,54 @@
 import Link from 'next/link';
 
 import { auth } from '@/app/lib/auth/server';
-import { getNovelInfo, getTableOfContents } from '@/app/lib/db/queries';
+import { getNovelInfo, getBookmarks, getTableOfContents } from '@/app/lib/db/queries';
+
+function BookmarksSection({
+  bookmarks
+}: {
+  bookmarks: {
+    id: number,
+    chapterId: number
+  }[]
+}) {
+  if (bookmarks.length === 0) {
+    return <></>
+  }
+
+  return (
+    <>
+      <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
+      <ul>
+        {
+          bookmarks.map(bookmark =>
+            // TODO: link to the bookmark
+            <li key={bookmark.id}>{bookmark.name}&nbsp;&ndash;&nbsp;Chapter {bookmark.chapterId}</li> // TODO: actually get chapter number
+            // TODO: how to visually distinguish the chapter number part from the bookmark name?
+          )
+        }
+      </ul>
+    </>
+  );
+}
 
 export default async function TocPage({
   params
 }: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ novelId: string }>
 }) {
-  const { slug } = await params;
+  const { novelId } = await params;
   const { data: session } = await auth.getSession();
   // TODO: how to handle this properly?
   if (session === null) {
     return <></>;
   }
-  const novelId = Number(slug);
-  const novelInfo = await getNovelInfo(session.user.id, novelId);
+  const novelInfo = await getNovelInfo(session.user.id, Number(novelId));
   // TODO: handle
   if (novelInfo === null) {
     return <></>;
   }
-  const contents = await getTableOfContents(novelId);
+  const bookmarks = await getBookmarks(Number(novelId));
+  const contents = await getTableOfContents(Number(novelId));
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-white font-sans dark:bg-black">
@@ -34,7 +62,7 @@ export default async function TocPage({
         <p>
           {/* TODO: how should it display when the URL is very long? */}
           {/* TODO: link styling */}
-          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external">{novelInfo.source}</a> : <em>(none listed)</em>} {/* TODO: format as external link */}
+          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external" className="hover:underline">{novelInfo.source}</a> : <em>(none listed)</em>} {/* TODO: format as external link */}
         </p>
         {/* TODO: use novelInfo.createdAt */}
         <p>
@@ -42,18 +70,13 @@ export default async function TocPage({
           {/* TODO: what to do if there's no synopsis? */}
           <em>{novelInfo.synopsis}</em>
         </p>
-        <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
-        <ul>
-          {/* TODO */}
-          <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> {/* TODO: how to visually distinguish the chapter # part from the bookmark name? */}
-        </ul>
-        {/* TODO: gap before the "Chapters" section */}
+        <BookmarksSection bookmarks={bookmarks} />
         <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
         <ul>
           {contents.map(chapter =>
             // TODO: use sort_order
             <li key={chapter.id}>
-              <Link href={`/novel/${novelId}/${chapter.id}`}>
+              <Link href={`/novel/${novelId}/${chapter.id}`} className="hover:underline">
                 {chapter.title}
               </Link>
             </li>
