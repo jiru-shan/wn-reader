@@ -11,7 +11,7 @@ export default function AuthStatus() {
   const session = authClient.useSession();
   const [signingOut, setSigningOut] = useState(false);
 
-  if (pathname.startsWith('/novel')) {
+  if (pathname.startsWith('/novel') || pathname.startsWith('/admin')) {
     return null;
   }
 

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/app/lib/auth/server';
 import { getCollection } from '@/app/lib/db/queries';
 import Collection from '@/app/dashboard/Collection';
-import Scraper from '@/app/dashboard/Scraper'; 
+import ScraperEmbed from '@/app/dashboard/ScraperEmbed'; 
 
 
 
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         </h1>
         
         {/* Render it directly here */}
-        <Scraper />
+        <ScraperEmbed />
         
         <Collection collection={collection} />
       </main>
