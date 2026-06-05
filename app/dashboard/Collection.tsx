@@ -2,6 +2,37 @@
 
 import Link from 'next/link';
 
+function SearchBar({ setQuery }: { setQuery: (query: string) => void }) {
+  function handleSearchBarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setQuery(e.target.value);
+  }
+
+  return (
+    <form className="mb-2">
+      <label htmlFor="search-collection">Search your novels:</label>
+      &nbsp;
+      <input 
+        type="search" 
+        id="search-collection" 
+        className="outline focus:outline-2 focus:outline-sky-300" 
+        onChange={handleSearchBarChange} 
+      />
+    </form>
+  );
+}
+
+function matches(novel: {
+  title: string,
+  author: string | null,
+  synopsis: string | null
+}, query: string): boolean {
+  return (
+    novel.title.toLowerCase().includes(query.toLowerCase())
+      || (novel.author !== null && novel.author.toLowerCase().includes(query.toLowerCase()))
+      || (novel.synopsis !== null && novel.synopsis.toLowerCase().includes(query.toLowerCase()))
+  );
+}
+
 function Card({
   novel
 }: {
@@ -35,20 +66,12 @@ export default function Collection({
     return (
       <>
         <p className="mb-4">Your collection is currently empty.</p>
-        <Link href="/scrape" className="text-sm font-medium bg-neutral-900 text-white px-4 py-2 rounded hover:bg-neutral-800 inline-block">
-          Scrape and Save
-        </Link>
       </>
     );
   }
 
   return (
     <>
-      <div className="mb-4">
-        <Link href="/scrape" className="text-sm font-medium bg-neutral-900 text-white px-4 py-2 rounded hover:bg-neutral-800 inline-block">
-          Scrape and Save
-        </Link>
-      </div>
       <ul className="flex flex-col gap-4">
         {collection.map(novel => <Card novel={novel} key={novel.id} />)}
       </ul>

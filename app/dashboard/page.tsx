@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/app/lib/auth/server';
 import { getCollection } from '@/app/lib/db/queries';
 import Collection from '@/app/dashboard/Collection';
+import ScraperEmbed from '@/app/dashboard/ScraperEmbed'; 
+
+
 
 export default async function DashboardPage() {
   const { data: session } = await auth.getSession();
@@ -15,6 +18,9 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50 mb-6">
           Your collection
         </h1>
+        
+        {/* Render it directly here */}
+        <ScraperEmbed />
         
         <Collection collection={collection} />
       </main>
