@@ -14,7 +14,7 @@ type ScrapingConfig = {
   chapterContent: string;
 };
 
-const EXTENSION_ID = "mckkfelafefdjncnfoijnhkogpnjekeb";
+const EXTENSION_ID = "nniojbbdgabgfkjnpcpbpbgbmababcpm";
 
 export default function ScraperWidgetPage() {
   const [url, setUrl] = useState('');
@@ -135,7 +135,7 @@ export default function ScraperWidgetPage() {
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://example.com/chapter/1"
+          placeholder="https://example.com/novel/index"
           disabled={loading}
           style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '14px' }}
         />

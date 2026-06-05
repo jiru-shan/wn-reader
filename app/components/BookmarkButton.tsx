@@ -8,7 +8,6 @@ export default function BookmarkButton() {
   const params = useParams(); 
   const [isSaving, setIsSaving] = useState(false);
 
-  // Safely extract routing variables from /novel/[novelId]/[chapterNum]/[percentage]
   const novelId = Number(params.novelId);
   const chapterNum = Number(params.chapterNum);
   const percentage = Number(params.percentage);

@@ -7,7 +7,6 @@ interface ScrapeFormEmbedProps {
 }
 
 export default function ScrapeFormEmbed({ onSuccess }: ScrapeFormEmbedProps) {
-  // Configured with a default safe value that accounts for the input fields and padding
   const [iframeHeight, setIframeHeight] = useState(60);
 
   useEffect(() => {
