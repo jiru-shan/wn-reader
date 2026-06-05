@@ -14,5 +14,6 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Scraper"
-  }
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoxcVNAm6412NWPC8jf+Anx/qu+UpC/t4zmifyq0wvNLpLccrfuY1QecgXHlM77PNslCab7Vsbv7sCS9ASJKyVHrvp5ofkckJBeQasKTTEt0FocQdCEG3AO3yj8bEETdCZMWmzzr1fMjyc6sY/drG3ETePRa4za1szbCojR4Ni6JN76Zm38pLUOcIn0ID1oDMzarbFhAbYrahyZpuN1MSmHv3Lt1X6qsJ1X4t7QV1L2UjB/PhNWaKndIJR/gmi9pJUVN8v53e6aLYXlFTjUEfXFekRLExZazGiiNirW2SWl5tArgFaL/vVmLiY+eMT8qs2Kwo22BZN4Ohb80pnHD0rwIDAQAB"
 }
