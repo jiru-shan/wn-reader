@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { width: 400px; padding: 12px; font-family: monospace; }
+      input { width: 100%; box-sizing: border-box; padding: 6px; margin-bottom: 8px; }
+      label { font-size: 12px; display: block; margin-bottom: 2px; }
+      .row { display: flex; gap: 8px; margin-bottom: 8px; }
+      .row input { margin: 0; }
+      button { width: 100%; padding: 8px; cursor: pointer; }
+      #status { margin-top: 8px; font-size: 12px; color: gray; }
+      #output {
+        margin-top: 8px;
+        background: #111;
+        color: #0f0;
+        padding: 8px;
+        height: 200px;
+        overflow-y: auto;
+        font-size: 11px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <label>URL to scrape</label>
+    <input id="url" type="text" placeholder="https://example.com" />
+
+    <label>Wait for selector (optional)</label>
+    <input id="selector" type="text" placeholder=".my-class or #my-id" />
+
+    <label>Extra delay in ms (optional)</label>
+    <input id="delay" type="number" placeholder="0" min="0" />
+
+    <button id="scrape">Scrape</button>
+
+    <div id="status"></div>
+    <div id="output"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

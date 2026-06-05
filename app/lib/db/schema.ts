@@ -62,6 +62,18 @@ export const bookmarks = pgTable('bookmarks', {
 ]);
 
 
+// scraping info
+export const scrapingInfo = pgTable('scraping_info', {
+  id: serial('id').primaryKey(),
+  source: text('source').notNull().unique(),   // URL of the site being scraped
+  title: text('title').notNull(),              // CSS class name for title element
+  synopsis: text('synopsis'),        // CSS class name for synopsis element
+  author: text('author'),            // CSS class name for author element
+  chapterTitle: text('chapter_title'),    // CSS class name for chapter title element
+  chapterContent: text('chapter_content').notNull(), // CSS class name for chapter content element
+});
+
+
 
 //relations template for novels (for other relations just copy this structure)
 export const novelsRelations = relations(novels, ({ one, many }) => ({
