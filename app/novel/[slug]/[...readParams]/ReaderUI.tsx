@@ -17,6 +17,9 @@ interface ReaderUIProps {
 export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialPercentage = 0 }: ReaderUIProps) {
   const [isMounted, setIsMounted] = useState(false);
   const hasInitializedProgress = useRef(false); 
+  
+  // 1. New Ref: silently holds the exact reading percentage 
+  const progressRef = useRef(initialPercentage);
 
   const [bookmarkStatus, setBookmarkStatus] = useState<"idle" | "loading" | "saved">("idle");
 
@@ -34,6 +37,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
   
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const chapterRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const prevStyleRef = useRef({ fontSize, fontFamily, widthLevel });
 
   const themeStyles = {
     light: "bg-[#fbfbfb] text-stone-900 selection:bg-stone-200",
@@ -61,7 +65,6 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
     return widthStyles[widthLevel];
   };
 
-  // MANUAL SAVE HANDLER
   const handleSaveBookmark = async () => {
     if (bookmarkStatus === "loading") return;
     setBookmarkStatus("loading");
@@ -83,7 +86,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
           percentage: sanitizedPercentage,
           url: window.location.pathname,
           chapterTitle: currentChapter.title,
-          isAuto: false, // Explicitly flagged as manual
+          isAuto: false,
         }),
       });
 
@@ -96,42 +99,33 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
       console.error("Failed to save bookmark:", error);
       setBookmarkStatus("idle");
     } finally {
-      setTimeout(() => {
-        setBookmarkStatus("idle");
-      }, 2000);
+      setTimeout(() => setBookmarkStatus("idle"), 2000);
     }
   };
 
-  // BACKGROUND AUTO-SAVE ENGINE
   useEffect(() => {
     if (!isMounted || !hasInitializedProgress.current) return;
-
     const currentChapter = chapters[currentChapterIdx];
     if (!currentChapter) return;
 
     const autoSaveBookmark = () => {
-      const payload = JSON.stringify({
-        chapterId: Number(currentChapter.id),
-        novelId: Number(novelId),
-        percentage: Math.round(Number(chapterProgress || 0)),
-        url: window.location.pathname,
-        chapterTitle: currentChapter.title,
-        isAuto: true, // Explicitly flagged as automatic
-      });
-
       fetch("/api/bookmarks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: payload,
+        body: JSON.stringify({
+          chapterId: Number(currentChapter.id),
+          novelId: Number(novelId),
+          percentage: Math.round(Number(chapterProgress || 0)),
+          url: window.location.pathname,
+          chapterTitle: currentChapter.title,
+          isAuto: true,
+        }),
         keepalive: true, 
       }).catch((err) => console.error("Silent auto-save failed:", err));
     };
 
     const debounceTimer = setTimeout(autoSaveBookmark, 2500);
-
-    const handleVisibilityOrUnload = () => {
-      autoSaveBookmark();
-    };
+    const handleVisibilityOrUnload = () => autoSaveBookmark();
 
     window.addEventListener("beforeunload", handleVisibilityOrUnload);
     document.addEventListener("visibilitychange", handleVisibilityOrUnload);
@@ -162,9 +156,33 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
 
   useEffect(() => {
     if (!isMounted) return;
-    const settings = { fontSize, theme, fontFamily, widthLevel, layout };
-    localStorage.setItem("reader_settings", JSON.stringify(settings));
+    localStorage.setItem("reader_settings", JSON.stringify({ fontSize, theme, fontFamily, widthLevel, layout }));
   }, [fontSize, theme, fontFamily, widthLevel, layout, isMounted]);
+
+  // 2. New Effect: Listens for layout/font changes to correct scroll position instantly
+  useEffect(() => {
+    if (!hasInitializedProgress.current || layout !== "scroll") return;
+
+    const prev = prevStyleRef.current;
+    if (prev.fontSize !== fontSize || prev.fontFamily !== fontFamily || prev.widthLevel !== widthLevel) {
+      prevStyleRef.current = { fontSize, fontFamily, widthLevel };
+
+      const targetChapter = chapterRefs.current[currentChapterIdx];
+      if (targetChapter) {
+        const chapterTop = targetChapter.offsetTop;
+        const chapterHeight = targetChapter.offsetHeight;
+        const windowHeight = window.innerHeight;
+        const headerOffset = 80;
+
+        let scrollTarget = chapterTop - headerOffset;
+        if (chapterHeight > windowHeight) {
+          scrollTarget = chapterTop + ((progressRef.current / 100) * (chapterHeight - windowHeight)) - headerOffset;
+        }
+
+        window.scrollTo({ top: Math.max(0, scrollTarget), behavior: "instant" });
+      }
+    }
+  }, [fontSize, fontFamily, widthLevel, layout, currentChapterIdx]);
 
   useEffect(() => {
     if (layout !== "scroll" || !isMounted) return;
@@ -186,18 +204,13 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
         }
 
         window.scrollTo({ top: Math.max(0, scrollTarget), behavior: "instant" });
-        
-        setTimeout(() => {
-          hasInitializedProgress.current = true;
-        }, 50);
-        
+        setTimeout(() => { hasInitializedProgress.current = true; }, 50);
       }, 150);
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (!hasInitializedProgress.current) return; 
-
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const idx = Number(entry.target.getAttribute("data-chapter-index"));
@@ -208,13 +221,10 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
       { rootMargin: "-80px 0px -80% 0px" } 
     );
 
-    chapterRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
+    chapterRefs.current.forEach((ref) => { if (ref) observer.observe(ref); });
 
     const handleScrollProgress = () => {
       if (!hasInitializedProgress.current) return; 
-
       const activeEl = chapterRefs.current[currentChapterIdx];
       if (!activeEl) return;
 
@@ -225,13 +235,15 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
 
       if (chapterHeight <= windowHeight) {
          setChapterProgress(100);
+         progressRef.current = 100;
          return;
       }
       const scrolledInChapter = scrollY - chapterTop + headerOffset;
       const maxScroll = chapterHeight - windowHeight + headerOffset;
-      let percentage = Math.round((scrolledInChapter / maxScroll) * 100);
+      const percentage = Math.max(0, Math.min(100, Math.round((scrolledInChapter / maxScroll) * 100)));
       
-      setChapterProgress(Math.max(0, Math.min(100, percentage)));
+      setChapterProgress(percentage);
+      progressRef.current = percentage; // Silently track
     };
 
     window.addEventListener("scroll", handleScrollProgress, { passive: true });
@@ -252,6 +264,7 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
       const pageWidth = el.clientWidth + gap;
       const pages = Math.max(1, Math.round((el.scrollWidth + gap) / pageWidth));
       setTotalPages(pages);
+
       if (!hasInitializedProgress.current && initialPercentage > 0) {
         const startPage = Math.max(1, Math.round((initialPercentage / 100) * pages));
         setCurrentPage(startPage);
@@ -265,8 +278,10 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
         setCurrentPage(pages);
         el.scrollTo({ left: (pages - 1) * pageWidth, behavior: "auto" });
       } else {
-        if (currentPage > pages) setCurrentPage(pages);
-        el.scrollTo({ left: (Math.min(currentPage, pages) - 1) * pageWidth, behavior: "auto" });
+        // 3. New Math: Calculate the correct page based on previous percentage
+        const restoredPage = Math.max(1, Math.round((progressRef.current / 100) * pages)) || 1;
+        setCurrentPage(restoredPage);
+        el.scrollTo({ left: (restoredPage - 1) * pageWidth, behavior: "auto" });
       }
       setIsTransitioningChapter(false);
     };
@@ -282,7 +297,9 @@ export default function ReaderUI({ chapters, novelId, initialIndex = 0, initialP
   useEffect(() => {
     if (layout === "scroll" || isTransitioningChapter || totalPages === 0) return;
     
-    setChapterProgress(Math.round((currentPage / totalPages) * 100));
+    const newProgress = Math.round((currentPage / totalPages) * 100);
+    setChapterProgress(newProgress);
+    progressRef.current = newProgress; // Silently track
 
     const el = scrollContainerRef.current;
     if (!el) return;
