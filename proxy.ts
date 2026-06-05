@@ -11,5 +11,6 @@ export const config = {
     '/bookmarks/:path*',
     '/profile/:path*',
     '/settings/:path*',
+    '/novel/:path*',
   ],
 };

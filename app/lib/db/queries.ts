@@ -1,7 +1,7 @@
 // src/lib/db/queries.ts
 import { db } from './index';
-import { novels, bookmarks, chapters, scrapingInfo} from './schema';
-import { eq, and, asc, desc } from 'drizzle-orm';
+import { novels, bookmarks, chapters, readingProgress, scrapingInfo } from './schema';
+import { eq, and, asc, desc, sql } from 'drizzle-orm';
 
 
 export async function getScrapingConfig(url: string) {
@@ -60,18 +60,35 @@ export async function getCollection(userId: string) {
   return collection;
 }
 
-export async function getNovelInfo(userId: string, novelId: number) {
+// novelId is a string here to make it so that it's valid to get e.g. /novel/1 but not /novel/01
+export async function getNovelInfo(userId: string, novelId: string) {
   const novelInfo = await db
     .select()
     .from(novels)
     .where(
       and(
         eq(novels.userId, userId),
-        eq(novels.id, novelId)
+        eq(sql<string>`cast(${novels.id} as varchar)`, novelId)
       )
     )
     .limit(1);
-  return (novelInfo.length === 1) ? novelInfo[0] : null;
+  if (novelInfo.length !== 1) {
+    return null;
+  }
+  return novelInfo[0];
+}
+
+export async function getReadingProgress(novelId: number) {
+  const progress = await db
+    .select()
+    .from(readingProgress)
+    .where(eq(readingProgress.novelId, novelId))
+    .innerJoin(chapters, eq(chapters.id, readingProgress.chapterId))
+    .limit(1);
+  if (progress.length !== 1) {
+    return null;
+  }
+  return progress[0];
 }
 
 export async function getBookmarks(novelId: number) {
