@@ -1,21 +1,19 @@
 // src/lib/db/queries.ts
 import { db } from './index';
 import { novels, bookmarks, chapters } from './schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, desc } from 'drizzle-orm';
 
-/**
- * Fetches a user's library dashboard information using their strict UUID identifier
- */
+
 export async function getUserLibraryData(userId: string) {
-  // Defensive check to ensure a valid string is passed
+  // check to see if id is valid
   if (!userId || typeof userId !== 'string') {
     throw new Error('A valid User UUID string is required');
   }
 
-  // Concurrently fetch both data sets from Neon
+  // fetch from neon
   const [authoredNovels, userBookmarks] = await Promise.all([
     
-    // 1. Fetch novels created by this specific UUID user
+    //fetch novels
     db.query.novels.findMany({
       where: eq(novels.userId, userId),
       with: {
@@ -25,7 +23,7 @@ export async function getUserLibraryData(userId: string) {
       },
     }),
 
-    // 2. Fetch all bookmarks saved by this specific UUID user
+    //fetch bookmarks
     db.query.bookmarks.findMany({
       where: eq(bookmarks.userId, userId),
       with: {
@@ -46,7 +44,7 @@ export async function getCollection(userId: string) {
     .select()
     .from(novels)
     .where(eq(novels.userId, userId))
-    .orderBy(novels.createdAt);
+    .orderBy(desc(novels.createdAt));
   return collection;
 }
 
@@ -64,13 +62,23 @@ export async function getNovelInfo(userId: string, novelId: number) {
   return (novelInfo.length === 1) ? novelInfo[0] : null;
 }
 
-export async function getTableOfContents(novelId: number) {
-  const contents = await db
+export async function getBookmarks(novelId: number) {
+  const bookmarksList = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.novelId, novelId))
+    .innerJoin(chapters, eq(chapters.id, bookmarks.chapterId))
+    .orderBy(asc(chapters.sortOrder), asc(bookmarks.percentage));
+  return bookmarksList;
+}
+
+export async function getChapters(novelId: number) {
+  const chaptersList = await db
     .select()
     .from(chapters)
     .where(eq(chapters.novelId, novelId))
-    .orderBy(chapters.sortOrder);
-  return contents;
+    .orderBy(asc(chapters.sortOrder));
+  return chaptersList;
 }
 
 export async function getChapterById(chapterId: number) {
@@ -78,4 +86,14 @@ export async function getChapterById(chapterId: number) {
     where: eq(chapters.id, chapterId),
   });
   return chapter;
+}
+
+export async function getChaptersForNovel(novelId: number) {
+  const allChapters = await db.query.chapters.findMany({
+    where: (chapters, { eq }) => eq(chapters.novelId, novelId),
+    
+    orderBy: (chapters, { asc }) => [asc(chapters.id)], 
+  });
+  
+  return allChapters;
 }

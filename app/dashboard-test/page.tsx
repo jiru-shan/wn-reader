@@ -1,21 +1,19 @@
-// src/app/dashboard/page.tsx
 import { getUserLibraryData } from '../lib/db/queries';
 import JSONImporter from './JSONImporter';
 
-// Hypothetical session getter from Neon Auth or your auth system
 async function getAuthenticatedUser() {
-  // Replace this with your actual auth extraction logic (e.g., authClient.getSession())
-  // Initialized with a structurally sound standard v4 UUID fallback string layout
+  //temporary auth solution (my temp acc)
   return { 
     id: "91c632b2-65a9-4278-a16a-743f57288317", 
     name: "Matthew" 
   };
 }
 
+//temporary dashboard page for people to use as a sample so other components can be written
+
 export default async function DashboardPage() {
   const user = await getAuthenticatedUser();
   
-  // Fetch active operational parameters safely bound to the user's explicit UUID
   const { authoredNovels, userBookmarks } = await getUserLibraryData(user.id);
 
   return (
@@ -37,7 +35,7 @@ export default async function DashboardPage() {
       {/* TWO-COLUMN GRID MONITOR */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* LEFT COLUMN: AUTHORED NOVELS */}
+        {/* AUTHORED NOVELS */}
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold text-slate-800">Your Novels ({authoredNovels.length})</h2>
           

@@ -1,6 +1,6 @@
 import { auth } from '@/app/lib/auth/server';
 import { getCollection } from '@/app/lib/db/queries';
-import Collection from '@/app/dashboard/collection';
+import Collection from '@/app/dashboard/Collection';
 
 export default async function DashboardPage() {
   const { data: session } = await auth.getSession();
