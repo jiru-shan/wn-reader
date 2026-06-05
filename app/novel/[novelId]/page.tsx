@@ -8,15 +8,16 @@ export default async function TocPage({
 }: {
   params: Promise<{ novelId: string }>
 }) {
-  const { novelId } = await params;
+  const { novelId: urlNovelId } = await params; 
   const { data: session } = await auth.getSession();
-  // TODO: how to handle this properly?
+  
   if (session === null) {
     return <></>;
   }
-  const novelId = Number(novelId);
+  
+  const novelId = Number(urlNovelId); 
   const novelInfo = await getNovelInfo(session.user.id, novelId);
-  // TODO: handle
+  
   if (novelInfo === null) {
     return <></>;
   }
@@ -29,29 +30,21 @@ export default async function TocPage({
           {novelInfo.title}
         </h1>
         <p>
-          Author: {novelInfo.author ? novelInfo.author : <em>(none listed)</em>} {/* TODO: is there a shorter way to do this? */}
+          Author: {novelInfo.author ? novelInfo.author : <em>(none listed)</em>}
         </p>
         <p>
-          {/* TODO: how should it display when the URL is very long? */}
-          {/* TODO: link styling */}
-          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external">{novelInfo.source}</a> : <em>(none listed)</em>} {/* TODO: format as external link */}
+          Original URL: {novelInfo.source ? <a href={novelInfo.source} rel="external">{novelInfo.source}</a> : <em>(none listed)</em>}
         </p>
-        {/* TODO: use novelInfo.createdAt */}
         <p>
-          {/* TODO: style this in some way to make it clear that it's part of the text, rather than from this app */}
-          {/* TODO: what to do if there's no synopsis? */}
           <em>{novelInfo.synopsis}</em>
         </p>
         <h2 className="text-2xl font-semibold mt-2">Bookmarks</h2>
         <ul>
-          {/* TODO */}
-          <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> {/* TODO: how to visually distinguish the chapter # part from the bookmark name? */}
+          <li>&lt;bookmark name&gt;&nbsp;&ndash;&nbsp;Chapter &lt;number&gt;</li> 
         </ul>
-        {/* TODO: gap before the "Chapters" section */}
         <h2 className="text-2xl font-semibold mt-2">Chapters</h2>
         <ul>
           {contents.map(chapter =>
-            // TODO: use sort_order
             <li key={chapter.id}>
               <Link href={`/novel/${novelId}/${chapter.id}`}>
                 {chapter.title}
