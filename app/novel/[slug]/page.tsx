@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { auth } from '@/app/lib/auth/server';
 import { getNovelInfo, getBookmarks, getChapters, getReadingProgress } from '@/app/lib/db/queries';
 
+//page for novel index/TOC of a novel
 function ReadingProgressSection({
   novelId, readingProgress
 }: {

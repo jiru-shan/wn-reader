@@ -18,7 +18,7 @@ Open terminal and run the following commands to download the code and install al
 ```bash
 git clone https://github.com/jiru-shan/wn-reader.git
 cd wn-reader
-npm install
+pnpm install
 ```
 
 ### Step 2: Configure Environment Variables
@@ -40,7 +40,7 @@ npx drizzle-kit push
 ### Step 4: Start the Next.js Server
 With the database connected, start the local development server:
 ```bash
-npm run dev
+pnpm run dev
 ```
 Go to **[http://localhost:3000](http://localhost:3000)** to see the server running.
 
@@ -53,6 +53,19 @@ The app requires the custom Chrome extension to scrape novel data.
 5. The extension is now active and ready to use.
 
 ---
+
+## Running the App Online
+The app is hosted on Vercel so it is also feasible to test it online.
+
+### Step 1:
+Navigate to https://wn-reader.vercel.app/dashboard
+Try signing up and logging in!
+
+### Step 2:
+When you attempt to scrape, you will be met with an error saying you are missing the extension
+Follow step 5 of running the project locally
+Get to scraping!
+
 
 ## Key Features
 
@@ -75,4 +88,6 @@ The diagram below illustrates the exact logic of our `POST /api/bookmarks` route
 
 ![Sequence Diagram](./UML_Diagrams/sequence-diagram.png)
 
+### Supported Websites
+As of right now, the only domains that are supported for scraping are soafp.com and cclawtranslations.home.blog. More will be added in the future (to the database)
 ---

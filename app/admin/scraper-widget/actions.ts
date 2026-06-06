@@ -1,10 +1,9 @@
-'use server'; // This forces the code to run ONLY on the server
+'use server';
 
 import { getScrapingConfig } from '../../lib/db/queries';
-import { db } from '../../lib/db'; // Path to your drizzle db instance
-import { novels, chapters } from '../../lib/db/schema'; // Path to your schema
+import { db } from '../../lib/db';
+import { novels, chapters } from '../../lib/db/schema';
 import { and, eq } from 'drizzle-orm';
-// Assuming you have a way to get the current user session (e.g., Next-Auth, Kinde, Clerk, Neon Auth)
 import { auth } from '@/app/lib/auth/server';
 
 export async function fetchScrapingConfig(url: string) {
@@ -32,13 +31,11 @@ type SaveScrapedPayload = {
 
 export async function saveScrapedData(payload: SaveScrapedPayload) {
   try {
-    // 1. Authenticate user (Novels require a userId in your schema)
     const { data: session } = await auth.getSession();
     if (!session || !session.user.id) {
       return { success: false, error: 'Unauthorized' };
     }
 
-    // 2. Find or Create the Novel
     let novelId: number;
     
     const existingNovel = await db.query.novels.findFirst({
@@ -67,7 +64,6 @@ export async function saveScrapedData(payload: SaveScrapedPayload) {
     });
     let currentSortOrder = existingChapters.length;
 
-    // 4. Map the array to match your Drizzle schema and insert them all at once
     const chaptersToInsert = payload.chapterList.map((ch) => {
       currentSortOrder += 1;
       return {
@@ -78,7 +74,6 @@ export async function saveScrapedData(payload: SaveScrapedPayload) {
       };
     });
 
-    // Bulk insert for high performance
     const insertedChapters = await db.insert(chapters)
       .values(chaptersToInsert)
       .returning({ id: chapters.id });
@@ -91,10 +86,9 @@ export async function saveScrapedData(payload: SaveScrapedPayload) {
       } 
     };
 
-  } catch (error: unknown) { // Changed 'any' to 'unknown'
+  } catch (error: unknown) {
     console.error("Failed to save scraped data:", error);
     
-    // Safely extract the message from the unknown error
     const errorMessage = error instanceof Error ? error.message : 'Database error';
     return { success: false, error: errorMessage };
   }

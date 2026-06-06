@@ -6,13 +6,11 @@ import { auth } from '@/app/lib/auth/server';
 import { and, eq } from 'drizzle-orm';
 
 export async function addManualBookmark(novelId: number, chapterNum: number, percentage: number, name: string) {
-  // Extract real identity securely on the backend
   const { data: session } = await auth.getSession();
   const userId = session?.user?.id;
-
+  //require user auth to bookmark (same with other actions for adding novels, etc)
   if (!userId) throw new Error("You must be logged in to bookmark.");
 
-  // Resolve sortOrder (chapterNum) to the true chapterId
   const [chapterRecord] = await db.select()
     .from(chapters)
     .where(and(eq(chapters.novelId, novelId), eq(chapters.sortOrder, chapterNum)))
@@ -32,8 +30,8 @@ export async function addManualBookmark(novelId: number, chapterNum: number, per
 export async function updateAutobookmark(novelId: number, chapterNum: number, percentage: number) {
   const { data: session } = await auth.getSession();
   const userId = session?.user?.id;
-
-  if (!userId) return; // Fail silently if reading logged out
+  
+  if (!userId) return;
 
   const [chapterRecord] = await db.select()
     .from(chapters)
@@ -42,7 +40,6 @@ export async function updateAutobookmark(novelId: number, chapterNum: number, pe
 
   if (!chapterRecord) return;
 
-  // Execute atomic upsert
   await db.insert(readingProgress)
     .values({ 
       userId, 

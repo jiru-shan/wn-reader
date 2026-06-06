@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+//serach bar on dashboard page
 function SearchBar({ setQuery }: { setQuery: (query: string) => void }) {
   function handleSearchBarChange(e: React.ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
@@ -34,6 +35,7 @@ function matches(novel: {
   );
 }
 
+//cards for individual novels on the dashboard page
 function Card({
   novel
 }: {
