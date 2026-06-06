@@ -9,9 +9,10 @@ A full-stack web application and companion Chrome extension that allows users to
 ### Prerequisites
 Ensure the following are installed:
 * **Node.js** (v18 or higher)
-* **npm** (Node Package Manager)
+* **pnpm** (Performant Node Package Manager)
 * **Google Chrome** (required for the scraper extension)
 * A **Neon Database** account (for PostgreSQL and Auth)
+* **Playwright** (for testing)
 
 ### Step 1: Clone and Install Dependencies
 Open terminal and run the following commands to download the code and install all required Node packages:
@@ -34,7 +35,7 @@ NEON_AUTH_COOKIE_SECRET="XXXXXX"
 ### Step 3: Setup Database (Drizzle ORM)
 Before running the server, ensure the database schema is pushed to your Neon Postgres database. Run the Drizzle command to push your schema (e.g., the `bookmarks` table):
 ```bash
-npx drizzle-kit push
+pnpm drizzle-kit push
 ```
 
 ### Step 4: Start the Next.js Server
@@ -51,6 +52,12 @@ The app requires the custom Chrome extension to scrape novel data.
 3. Click the **Load unpacked** button (top left).
 4. Select the `extension/` folder located inside the project repository.
 5. The extension is now active and ready to use.
+
+### Step 6: Run tests
+Execute Playwright tests using the following command:
+```bash
+pnpm exec playwright test
+```
 
 ---
 
