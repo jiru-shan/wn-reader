@@ -50,7 +50,7 @@ The app requires the custom Chrome extension to scrape novel data.
 2. Toggle **Developer mode** ON (top right corner).
 3. Click the **Load unpacked** button (top left).
 4. Select the `extension/` folder located inside the project repository.
-5. The extension is now active and ready to communicate with your local Next.js server!
+5. The extension is now active and ready to use.
 
 ---
 
@@ -59,7 +59,7 @@ The app requires the custom Chrome extension to scrape novel data.
 * **Integrated Chrome Scraper:** A custom browser extension that parses novel chapters using offscreen documents and concurrent batch processing.
 * **Secure Log in:** A secure login feature that allows novels and userIDs to be stored within a relational database to allow for saving of novels and bookmarks.
 * **Distraction-Free Reader UI:** Next.js frontend featuring a dashboard and a dedicated reading interface with formatting options such as font changes, style changes, format changes (long scroll, single page, double page), and more.
-* **Bookmarks:** A backend API allows for the manual and automatic storing of reading progress to the database.
+* **Bookmarks:** A backend API allows for the manual and automatic storing of reading progress to the database, shown above the table of contents for a novel.
 
 ---
 
@@ -68,11 +68,11 @@ The app requires the custom Chrome extension to scrape novel data.
 ### Component Architecture
 The diagram below details Client Tier, Server Tier, and Data Tier interaction. The Chrome Extension passes scraped data to the Next.js UI before being saved to the database.
 
-![Component Diagram](./UML_Diagrams/component-architecture.png)
+![Commponent Diagram](./UML_Diagrams/component-architecture.png)
 
 ### Sequence Diagram
-The diagram below illustrates the exact logic of our `POST /api/bookmarks` route, demonstrating system  authentication and performs an "Upsert" to update a user's reading progress.
+The diagram below the illustrates the exact logic of our `POST /api/bookmarks` route, demonstrating system  authentication and performs an "Upsert" to update a user's reading progress.
 
-![Sequence Diagram](./UML_Diagrams/sequence-diagram.png)
+![Sequence Diagram](./UML_Diagrams/.png)
 
 ---
