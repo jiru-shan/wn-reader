@@ -9,14 +9,14 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
 
   test('User can sign up, access dashboard, read a novel, and save a bookmark', async ({ page }) => {
     
-    await test.step('Navigate to Sign Up and create an account', async () => {
-      await page.goto('/auth/sign-up');
-      await page.getByPlaceholder(/name/i).fill('Playwright Tester');
-      await page.getByPlaceholder(/email/i).fill(testEmail);
-      await page.getByPlaceholder(/password/i).fill(testPassword);
-      await page.getByRole('button', { name: /sign up|register/i }).click();
-      await expect(page).toHaveURL(/.*\/dashboard/);
-    });
+      await test.step('Navigate to Sign Up and create an account', async () => {
+        await page.goto('/auth/sign-up');
+        await page.getByLabel(/^Name/i).fill('Playwright Tester');
+        await page.getByLabel(/^Email/i).fill(testEmail);
+        await page.getByLabel(/^Password/i).fill(testPassword);
+        await page.getByRole('button', { name: /sign up|create account/i }).click();
+        await expect(page).toHaveURL(/.*\/dashboard/);
+      });
 
     await test.step('Navigate to a novel chapter', async () => {
       await page.goto('/novel/9/1/0');
