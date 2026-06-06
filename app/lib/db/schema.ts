@@ -87,6 +87,8 @@ export const scrapingInfo = pgTable('scraping_info', {
 
 
 //relations template for novels (for other relations just copy this structure)
+//relationals are defined so that novels know which user created them, chapters know which novel they
+//are connected to, etc.
 export const novelsRelations = relations(novels, ({ one, many }) => ({
   author: one(usersInNeonAuth, {
     fields: [novels.userId],

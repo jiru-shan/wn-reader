@@ -1,8 +1,8 @@
-// src/lib/db/queries.ts
 import { db } from './index';
 import { novels, bookmarks, chapters, readingProgress, scrapingInfo } from './schema';
 import { eq, and, asc, desc, sql } from 'drizzle-orm';
 
+//queries for all the different stuff we need from the database
 
 export async function getScrapingConfig(url: string) {
   const hostname = new URL(url).hostname;

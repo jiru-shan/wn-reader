@@ -6,6 +6,7 @@ interface ScrapeFormEmbedProps {
   onSuccess?: () => void;
 }
 
+//iframe for scraper widget to control height and expanding.
 export default function ScrapeFormEmbed({ onSuccess }: ScrapeFormEmbedProps) {
   const [iframeHeight, setIframeHeight] = useState(60);
 
@@ -37,7 +38,7 @@ export default function ScrapeFormEmbed({ onSuccess }: ScrapeFormEmbedProps) {
           transition: 'height 0.12s ease-out'
         }}
         scrolling="no"
-        title="Scraper Sandbox"
+        title="Scraper"
       />
     </div>
   );

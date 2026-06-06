@@ -16,6 +16,9 @@ type ScrapingConfig = {
 
 const EXTENSION_ID = "nniojbbdgabgfkjnpcpbpbgbmababcpm";
 
+//for some reason the scraper was not able to communicate with the database when used as a component
+//so we created a page for it so that way it could instead be used as a widget
+
 export default function ScraperWidgetPage() {
   const [url, setUrl] = useState('');
   const [config, setConfig] = useState<ScrapingConfig | null>(null);
@@ -25,6 +28,7 @@ export default function ScraperWidgetPage() {
   
   const containerRef = useRef<HTMLDivElement>(null);
 
+  //widget sizing and height
   useEffect(() => {
     if (!containerRef.current || typeof window === 'undefined') return;
     
@@ -39,6 +43,7 @@ export default function ScraperWidgetPage() {
     return () => clearTimeout(timer);
   }, [error, successMessage, config, loading]);
 
+  // what occurs on url submission
   const handleCheck = async () => {
     setError('');
     setConfig(null);
@@ -64,6 +69,7 @@ export default function ScraperWidgetPage() {
         return;
       }
 
+      //sends message to the extension
       window.chrome.runtime.sendMessage(
         EXTENSION_ID,
         {
@@ -87,6 +93,7 @@ export default function ScraperWidgetPage() {
             return;
           }
 
+          //save the results
           const saveResult = await saveScrapedData({
             title: chromeResponse.data.title || 'Untitled Novel',
             synopsis: chromeResponse.data.synopsis,
@@ -106,7 +113,6 @@ export default function ScraperWidgetPage() {
             }
           }
           
-          // CRITICAL FIX: Clear the config state here so the message unmounts
           setConfig(null); 
           setLoading(false);
         }
@@ -159,7 +165,6 @@ export default function ScraperWidgetPage() {
       {error && <p style={{ color: '#e53e3e', fontWeight: '500', margin: '12px 0 0 0', fontSize: '14px' }}>❌ {error}</p>}
       {successMessage && <p style={{ color: '#38a169', fontWeight: '500', margin: '12px 0 0 0', fontSize: '14px' }}>{successMessage}</p>}
       
-      {/* This box now automatically drops out of the DOM when config is reset to null */}
       {config && (
         <div style={{ marginTop: '12px', padding: '12px', background: '#f7fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
           <p style={{ margin: 0, color: '#4a5568', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>

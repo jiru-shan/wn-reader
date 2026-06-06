@@ -1,6 +1,7 @@
 import ReaderUI from "./ReaderUI";
 import { getChaptersForNovel } from "@/app/lib/db/queries"; 
 
+//wait for chapters and params to load before loading readerUI (pass in everything as props)
 export default async function ReaderPage({ 
   params 
 }: { 

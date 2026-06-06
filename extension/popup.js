@@ -1,3 +1,5 @@
+//sample scraper debug code to run the scraper before website was implemented
+
 document.getElementById("scrape").addEventListener("click", async () => {
   const url = document.getElementById("url").value.trim();
   const selector = document.getElementById("selector").value.trim();

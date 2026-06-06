@@ -1,5 +1,6 @@
 import { createNeonAuth } from '@neondatabase/auth/next/server';
 
+//auth env variables. neon auth cookie secret generated and added to vercel manually
 function requiredEnv(name: string): string {
   const value = process.env[name];
   if (!value) {

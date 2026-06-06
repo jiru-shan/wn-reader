@@ -51,7 +51,7 @@ The app requires the custom Chrome extension to scrape novel data.
 2. Toggle **Developer mode** ON (top right corner).
 3. Click the **Load unpacked** button (top left).
 4. Select the `extension/` folder located inside the project repository.
-5. The extension is now active and ready to communicate with your local Next.js server!
+5. The extension is now active and ready to use.
 
 ### Step 6: Run tests
 Execute Playwright tests using the following command:
@@ -61,12 +61,24 @@ pnpm exec playwright test
 
 ---
 
+## Running the App Online
+The app is hosted on Vercel so it is also feasible to test it online.
+
+### Step 1:
+1. Navigate to https://wn-reader.vercel.app/dashboard
+2. Try signing up and logging in!
+
+### Step 2:
+1. When you attempt to scrape, you will be met with an error saying you are missing the extension. 
+2. Follow step 5 of running the project locally. Get to scraping!
+
+
 ## Key Features
 
 * **Integrated Chrome Scraper:** A custom browser extension that parses novel chapters using offscreen documents and concurrent batch processing.
 * **Secure Log in:** A secure login feature that allows novels and userIDs to be stored within a relational database to allow for saving of novels and bookmarks.
 * **Distraction-Free Reader UI:** Next.js frontend featuring a dashboard and a dedicated reading interface with formatting options such as font changes, style changes, format changes (long scroll, single page, double page), and more.
-* **Bookmarks:** A backend API allows for the manual and automatic storing of reading progress to the database.
+* **Bookmarks:** A backend API allows for the manual and automatic storing of reading progress to the database, shown above the table of contents for a novel.
 
 ---
 
@@ -82,4 +94,6 @@ The diagram below illustrates the exact logic of our `POST /api/bookmarks` route
 
 ![Sequence Diagram](./UML_Diagrams/sequence-diagram.png)
 
+### Supported Websites
+As of right now, the only domains that are supported for scraping are soafp.com and cclawtranslations.home.blog. More will be added in the future (to the database)
 ---

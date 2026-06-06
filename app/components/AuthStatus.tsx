@@ -5,12 +5,14 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/app/lib/auth/client';
 
+//auth status bar at the top of (almost) every page - added in layout.tsx
 export default function AuthStatus() {
   const router = useRouter();
   const pathname = usePathname();
   const session = authClient.useSession();
   const [signingOut, setSigningOut] = useState(false);
 
+  //unnecessary for the scraper-widget as well as on the novel reading page
   if (pathname.startsWith('/novel') || pathname.startsWith('/admin')) {
     return null;
   }

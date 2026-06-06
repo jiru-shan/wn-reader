@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/app/lib/auth/client';
 
+//for auth we are making use of NeonDB's built in auth that runs on betterAuth. Submit to the auth
+//by collecting the info in forms and then submitting to the db
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -29,6 +31,7 @@ export default function SignInPage() {
         return;
       }
 
+      //supposed to work but sometimes had issues so redirect to dashboard in proxy.ts (bugfix)
       router.push('/dashboard');
       router.refresh();
     } catch {
