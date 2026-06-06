@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+//redirects logged in people to dashboard when on sign-up or sign-in
+//also redirects not logged in people tot sign-in or sign-up
+
 const protectedRoutes = [
   '/dashboard',
   '/novel',
@@ -16,10 +19,12 @@ export default async function middleware(req: NextRequest) {
   const isLoggedIn = !!sessionCookie?.value;
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
 
+  //redirects to dashboard
   if ((pathname.startsWith('/auth/sign-in') || pathname.startsWith('/auth/sign-up')) && isLoggedIn) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
+  //redirects to signin
   if (isProtected && !isLoggedIn) {
     return NextResponse.redirect(new URL('/auth/sign-in', req.url));
   }
@@ -30,12 +35,8 @@ export default async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/auth/sign-in',
-    '/reader/:path*',
+    '/auth/sign-up',
     '/dashboard/:path*',
-    '/library/:path*',
-    '/bookmarks/:path*',
-    '/profile/:path*',
-    '/settings/:path*',
     '/novel/:path*',
   ],
 };

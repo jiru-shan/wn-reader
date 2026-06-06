@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/app/lib/auth/client';
 
+//read sign-in page.tsx
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -44,6 +45,7 @@ export default function SignUpPage() {
 
       router.push('/dashboard');
       router.refresh();
+      //same issue with not redirecting occasionally. solved by proxy.ts but unsure of source
     } catch {
       setError('Could not create account. This email may already be registered.');
     } finally {

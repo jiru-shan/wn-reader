@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { addManualBookmark } from '@/app/lib/db/actions';
 import { useState } from 'react';
 
+//Bookmark component in the reader
 export default function BookmarkButton() {
   const params = useParams(); 
   const [isSaving, setIsSaving] = useState(false);
@@ -20,7 +21,8 @@ export default function BookmarkButton() {
 
     setIsSaving(true);
     try {
-      const bookmarkName = `Chapter ${chapterNum}`; 
+      const bookmarkName = `Chapter ${chapterNum}`;
+      //server side actions.ts file 
       await addManualBookmark(novelId, chapterNum, percentage, bookmarkName);
       alert("Bookmark saved!");
     } catch (error) {

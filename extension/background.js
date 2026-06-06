@@ -1,3 +1,7 @@
+//main function for the extension
+//listens to messages from the website and triggers scrapes before sending them to offscreen.js to parse
+
+//debugging function (call from a popup rather than from the website)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "PING") {
     sendResponse({ type: "PONG" });
@@ -12,6 +16,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+//website listener
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
   if (message.type === "SCRAPE_URL") {
     scrapeUrl(message.url, message.options ?? {}, message.config ?? {})
@@ -21,6 +26,7 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   }
 });
 
+//make sure offscreen.html exists so offscreen.js exists before parsing is called
 async function ensureOffscreenDocument() {
   const existing = await chrome.offscreen.hasDocument();
   if (!existing) {
@@ -32,6 +38,8 @@ async function ensureOffscreenDocument() {
   }
 }
 
+//send a message to offscreen.js using chrome.runtime.sendMessage (can't communicate directly)
+//also a form of information hiding
 async function parseWithOffscreen(html, config = {}) {
   await ensureOffscreenDocument();
   return new Promise((resolve, reject) => {
@@ -44,7 +52,7 @@ async function parseWithOffscreen(html, config = {}) {
 }
 
 
-
+//waits for the tab to load before scraping (some pages have JS loading)
 async function waitForTabLoad(tabId) {
   return new Promise((resolve) => {
     chrome.tabs.onUpdated.addListener(function listener(updatedTabId, info) {
@@ -56,6 +64,7 @@ async function waitForTabLoad(tabId) {
   });
 }
 
+//for websites that have really weird loading styles, can wait for an element (ie TOC links) before scraping
 async function waitForElement(tabId, selector, timeout = 5000) {
   const start = Date.now();
 
@@ -73,6 +82,7 @@ async function waitForElement(tabId, selector, timeout = 5000) {
   return false;
 }
 
+//helper function for scraping a single chapter so can run multiple through promises
 async function scrapeSingleChapter(url, options = {}, chapterConfig = {}) {
   const { waitForSelector = null, extraDelay = 0 } = options;
   const tab = await chrome.tabs.create({ url, active: false });
@@ -100,6 +110,7 @@ async function scrapeSingleChapter(url, options = {}, chapterConfig = {}) {
   }
 }
 
+//function for parsing chapter (as opposed to parsing the TOC)
 async function parseChapterWithOffscreen(html, config = {}) {
   await ensureOffscreenDocument();
   return new Promise((resolve, reject) => {
@@ -111,6 +122,7 @@ async function parseChapterWithOffscreen(html, config = {}) {
   });
 }
 
+//what is called when the website sends a link to the extension (triggerd by listener)
 async function scrapeUrl(url, options = {}, config = {}) {
   const { waitForSelector = null, extraDelay = 0 } = options;
 
@@ -128,6 +140,8 @@ async function scrapeUrl(url, options = {}, config = {}) {
       func: () => document.body.innerHTML,
     });
 
+    //parses data like author and chapter count/synsopsis/etc.
+    //also returns a list of links which are then nested through
     const rawHtml = result?.result;
     mainData = await parseWithOffscreen(rawHtml, config); 
 
@@ -137,21 +151,16 @@ async function scrapeUrl(url, options = {}, config = {}) {
 
   if (!mainData) return null;
 
-  // --- NEW CONCURRENT BATCH PROCESSING MECHANISM ---
   if (Array.isArray(mainData.chapterLinks) && mainData.chapterLinks.length > 0) {
     const scrapedChapters = [];
-    const CONCURRENCY_LIMIT = 5; // Load 5 chapters at a time
+    const CONCURRENCY_LIMIT = 5; 
 
-    // Loop through the links array in steps of 5
     for (let i = 0; i < mainData.chapterLinks.length; i += CONCURRENCY_LIMIT) {
-      // Extract a slice of up to 5 links
         const batchUrls = mainData.chapterLinks.slice(i, i + CONCURRENCY_LIMIT);
       
-      // Create a promise for each link in the current batch
-      // INSIDE YOUR BACKGROUND SCRIPT (scrapeUrl function batching loop):
+      //create a promise for each link in the current batch
         const batchPromises = batchUrls.map(async (chapterItem) => {
             try {
-                // FIX: Extract the url property string from the object safely
                 const targetUrl = typeof chapterItem === 'object' ? chapterItem.url : chapterItem;
                 
                 if (!targetUrl) return { error: "No URL found for this chapter" };
@@ -164,10 +173,10 @@ async function scrapeUrl(url, options = {}, config = {}) {
             }
         });
 
-      // Execute all 5 promises in parallel and wait for them all to finish
-      const batchResults = await Promise.all(batchPromises);
+        //batch execute 5 at a time (executing dozens as once can get browser flagged + technical limitations)
+        const batchResults = await Promise.all(batchPromises);
       
-      // Push the results into our master list
+      // push the results into master list
       scrapedChapters.push(...batchResults);
     }
 
