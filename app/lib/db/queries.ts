@@ -1,5 +1,5 @@
 import { db } from './index';
-import { novels, bookmarks, chapters, readingProgress, scrapingInfo } from './schema';
+import { novels, bookmarks, chapters, scrapingInfo } from './schema';
 import { eq, and, asc, desc, sql } from 'drizzle-orm';
 
 //queries for all the different stuff we need from the database
@@ -14,19 +14,6 @@ export async function getScrapingConfig(url: string) {
     .limit(1);
 
   return config.length ? config[0] : null;
-}
-
-export async function getReadingProgress(novelId: number) {
-  const progress = await db
-    .select()
-    .from(readingProgress)
-    .where(eq(readingProgress.novelId, novelId))
-    .innerJoin(chapters, eq(chapters.id, readingProgress.chapterId))
-    .limit(1);
-  if (progress.length !== 1) {
-    return null;
-  }
-  return progress[0];
 }
 
 export async function getUserLibraryData(userId: string) {
