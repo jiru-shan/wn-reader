@@ -40,7 +40,7 @@ npx drizzle-kit push
 ### Step 4: Start the Next.js Server
 With the database connected, start the local development server:
 ```bash
-pnpm run dev
+pnpm dev
 ```
 Go to **[http://localhost:3000](http://localhost:3000)** to see the server running.
 
