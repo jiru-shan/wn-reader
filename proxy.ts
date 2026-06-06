@@ -35,12 +35,8 @@ export default async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/auth/sign-in',
-    '/reader/:path*',
+    '/auth/sign-up',
     '/dashboard/:path*',
-    '/library/:path*',
-    '/bookmarks/:path*',
-    '/profile/:path*',
-    '/settings/:path*',
     '/novel/:path*',
   ],
 };
