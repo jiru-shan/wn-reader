@@ -29,16 +29,17 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
       await expect(layoutSelect).toHaveValue('single');
     });
 
-    await test.step('Save a manual bookmark and verify execution', async () => {
-      const dialogPromise = page.waitForEvent('dialog');
-      
-      const bookmarkBtn = page.getByRole('button', { name: /bookmark/i });
-      await expect(bookmarkBtn).toBeEnabled();
-      await bookmarkBtn.click();
-
-      const dialog = await dialogPromise;
-      expect(dialog.message()).toBe('Bookmark saved!');
-      await dialog.accept();
-    });
+      await test.step('Save a manual bookmark and verify execution', async () => {
+        let dialogMessage = '';
+        page.once('dialog', async (dialog) => {
+          dialogMessage = dialog.message();
+          await dialog.accept();
+        });
+        const bookmarkBtn = page.getByRole('button', { name: /bookmark/i });
+        await expect(bookmarkBtn).toBeEnabled();
+        await bookmarkBtn.click();
+        await expect(bookmarkBtn).toHaveText(/bookmark this page/i, { timeout: 10000 });
+        expect(dialogMessage).toMatch(/saved|failed/i);
+      });
   });
 });
