@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Web Novel Reader & Scraper
 
-## Getting Started
+A full-stack web application and companion Chrome extension that allows users to scrape web novels, read them in a custom UI, and securely sync their reading progress.
 
-First, run the development server:
+---
 
+## Running the App Locally
+
+### Prerequisites
+Ensure the following are installed:
+* **Node.js** (v18 or higher)
+* **npm** (Node Package Manager)
+* **Google Chrome** (required for the scraper extension)
+* A **Neon Database** account (for PostgreSQL and Auth)
+
+### Step 1: Clone and Install Dependencies
+Open terminal and run the following commands to download the code and install all required Node packages:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/jiru-shan/wn-reader.git
+cd wn-reader
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Step 2: Configure Environment Variables
+Connect the app to your database and authentication provider. 
+1. Create a file named `.env.local` at the root of the directory.
+2. Add the following keys and replace the placeholder values with actual Neon project credentials:
+```env
+DATABASE_URL="XXXXXX"
+NEON_AUTH_BASE_URL="XXXXXX"
+NEON_AUTH_COOKIE_SECRET="XXXXXX"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Step 3: Setup Database (Drizzle ORM)
+Before running the server, ensure the database schema is pushed to your Neon Postgres database. Run the Drizzle command to push your schema (e.g., the `bookmarks` table):
+```bash
+npx drizzle-kit push
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Step 4: Start the Next.js Server
+With the database connected, start the local development server:
+```bash
+npm run dev
+```
+Go to **[http://localhost:3000](http://localhost:3000)** to see the server running.
 
-## Learn More
+### Step 5: Install the Chrome Scraper Extension
+The app requires the custom Chrome extension to scrape novel data.
+1. Open Google Chrome and type `chrome://extensions/` into the URL bar.
+2. Toggle **Developer mode** ON (top right corner).
+3. Click the **Load unpacked** button (top left).
+4. Select the `extension/` folder located inside the project repository.
+5. The extension is now active and ready to communicate with your local Next.js server!
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* **Integrated Chrome Scraper:** A custom browser extension that parses novel chapters using offscreen documents and concurrent batch processing.
+* **Secure Log in:** A secure login feature that allows novels and userIDs to be stored within a relational database to allow for saving of novels and bookmarks.
+* **Distraction-Free Reader UI:** Next.js frontend featuring a dashboard and a dedicated reading interface with formatting options such as font changes, style changes, format changes (long scroll, single page, double page), and more.
+* **Bookmarks:** A backend API allows for the manual and automatic storing of reading progress to the database.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## System Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Component Architecture
+The diagram below details Client Tier, Server Tier, and Data Tier interaction. The Chrome Extension passes scraped data to the Next.js UI before being saved to the database.
+
+![Component Diagram](./UML_Diagrams/component-architecture.png)
+
+### Sequence Diagram
+The diagram below illustrates the exact logic of our `POST /api/bookmarks` route, demonstrating system  authentication and performs an "Upsert" to update a user's reading progress.
+
+![Sequence Diagram](./UML_Diagrams/sequence-diagram.png)
+
+---
