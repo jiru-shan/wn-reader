@@ -10,9 +10,7 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
 
   test('User can sign up, access dashboard, read a novel, and save a bookmark', async ({ page }) => {
     
-    // ==========================================
-    // Phase 1: Authentication (Fuli's Domain)
-    // ==========================================
+    // Phase 1: Authentication (Fuli)
     await test.step('Navigate to Sign Up and create an account', async () => {
       await page.goto('/auth/sign-up');
       
@@ -26,9 +24,7 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
       await expect(page).toHaveURL(/.*\/dashboard/);
     });
 
-    // ==========================================
-    // Phase 2: Dashboard Navigation (Matthew's Domain)
-    // ==========================================
+    // Phase 2: Dashboard Navigation (Matthew)
     await test.step('Navigate from dashboard to a novel table of contents', async () => {
       // Wait for the dashboard collection to load
       await expect(page.getByRole('heading', { name: /dashboard|collection/i })).toBeVisible();
@@ -43,9 +39,7 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
       await expect(page.getByRole('heading', { name: /chapters|table of contents/i })).toBeVisible();
     });
 
-    // ==========================================
-    // Phase 3: Reader Interface (Jingyao's Domain)
-    // ==========================================
+    // Phase 3: Reader Interface (Jingyao)
     await test.step('Open a chapter and adjust reader settings', async () => {
       // Click the link for Chapter 1
       const chapterOneLink = page.locator('a[href*="/1/0"]').first();
@@ -60,9 +54,7 @@ test.describe('Full User Journey: Auth to Bookmarking', () => {
       await expect(layoutSelect).toHaveValue('single');
     });
 
-    // ==========================================
-    // Phase 4: Database Actions (David's Domain)
-    // ==========================================
+    // Phase 4: Database Actions (David)
     await test.step('Save a manual bookmark and verify execution', async () => {
       // Set up a listener to catch the successful alert from BookmarkButton.tsx
       const dialogPromise = page.waitForEvent('dialog');
