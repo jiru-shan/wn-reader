@@ -1,8 +1,8 @@
 'use server'; // This forces the code to run ONLY on the server
 
-import { getScrapingConfig } from '../lib/db/queries';
-import { db } from '../lib/db'; // Path to your drizzle db instance
-import { novels, chapters } from '../lib/db/schema'; // Path to your schema
+import { getScrapingConfig } from '../../lib/db/queries';
+import { db } from '../../lib/db'; // Path to your drizzle db instance
+import { novels, chapters } from '../../lib/db/schema'; // Path to your schema
 import { and, eq } from 'drizzle-orm';
 // Assuming you have a way to get the current user session (e.g., Next-Auth, Kinde, Clerk, Neon Auth)
 import { auth } from '@/app/lib/auth/server';

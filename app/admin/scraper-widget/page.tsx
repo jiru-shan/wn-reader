@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { fetchScrapingConfig, saveScrapedData } from '../../scrape/actions'; 
+import { fetchScrapingConfig, saveScrapedData } from './actions'; 
 
 type ScrapingConfig = {
   source: string;
