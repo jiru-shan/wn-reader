@@ -6,6 +6,7 @@ import { novels, chapters } from '../../lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/app/lib/auth/server';
 
+//checks if website has been added to the DB to determine whether or not we have a way to scrape it
 export async function fetchScrapingConfig(url: string) {
   try {
     const data = await getScrapingConfig(url);
@@ -29,6 +30,7 @@ type SaveScrapedPayload = {
   chapterList: ScrapedChapter[]; // Updated to accept an array
 };
 
+//takes the input given by the chrome extension and saves it to the db
 export async function saveScrapedData(payload: SaveScrapedPayload) {
   try {
     const { data: session } = await auth.getSession();
@@ -38,6 +40,7 @@ export async function saveScrapedData(payload: SaveScrapedPayload) {
 
     let novelId: number;
     
+    //check if existing novel
     const existingNovel = await db.query.novels.findFirst({
       where: and(
         eq(novels.title, payload.title),
@@ -64,6 +67,7 @@ export async function saveScrapedData(payload: SaveScrapedPayload) {
     });
     let currentSortOrder = existingChapters.length;
 
+    //inserts chapters one at a time
     const chaptersToInsert = payload.chapterList.map((ch) => {
       currentSortOrder += 1;
       return {

@@ -58,13 +58,12 @@ The app requires the custom Chrome extension to scrape novel data.
 The app is hosted on Vercel so it is also feasible to test it online.
 
 ### Step 1:
-Navigate to https://wn-reader.vercel.app/dashboard
-Try signing up and logging in!
+1. Navigate to https://wn-reader.vercel.app/dashboard
+2. Try signing up and logging in!
 
 ### Step 2:
-When you attempt to scrape, you will be met with an error saying you are missing the extension
-Follow step 5 of running the project locally
-Get to scraping!
+1. When you attempt to scrape, you will be met with an error saying you are missing the extension. 
+2. Follow step 5 of running the project locally. Get to scraping!
 
 
 ## Key Features
