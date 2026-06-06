@@ -68,11 +68,11 @@ The app requires the custom Chrome extension to scrape novel data.
 ### Component Architecture
 The diagram below details Client Tier, Server Tier, and Data Tier interaction. The Chrome Extension passes scraped data to the Next.js UI before being saved to the database.
 
-![Commponent Diagram](./UML_Diagrams/component-architecture.png)
+![Component Diagram](./UML_Diagrams/component-architecture.png)
 
 ### Sequence Diagram
-The diagram below the illustrates the exact logic of our `POST /api/bookmarks` route, demonstrating system  authentication and performs an "Upsert" to update a user's reading progress.
+The diagram below illustrates the exact logic of our `POST /api/bookmarks` route, demonstrating system  authentication and performs an "Upsert" to update a user's reading progress.
 
-![Sequence Diagram](./UML_Diagrams/.png)
+![Sequence Diagram](./UML_Diagrams/sequence-diagram.png)
 
 ---
